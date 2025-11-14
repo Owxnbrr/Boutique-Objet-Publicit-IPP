@@ -6,6 +6,9 @@ import PayForm from "./PayForm";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
 
 type OrderStatus = "pending" | "paid" | "processing" | "shipped" | "cancelled" | "refunded";
 
