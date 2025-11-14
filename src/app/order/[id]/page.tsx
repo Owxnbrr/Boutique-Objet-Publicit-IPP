@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import PayForm from "./PayForm";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type OrderStatus = "pending" | "paid" | "processing" | "shipped" | "cancelled" | "refunded";
 

@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import Stripe from "stripe";
 
-export const runtime = "nodejs"; // Stripe nécessite le runtime Node
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic"; // Stripe nécessite le runtime Node
 
 type CartItem = {
   id: string;            // = product_id
