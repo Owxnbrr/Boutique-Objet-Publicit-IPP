@@ -1,5 +1,5 @@
-// src/app/order/[id]/page.tsx
 import { cookies } from "next/headers";
+import React from "react";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import Stripe from "stripe";
 import PayForm from "./PayForm";
@@ -21,12 +21,42 @@ const STATUS_META: Record<
   OrderStatus,
   { label: string; bg: string; text: string; dot: string }
 > = {
-  pending: { label: "En attente", bg: "#FEF3C7", text: "#92400E", dot: "#F59E0B" },
-  paid: { label: "Payée", bg: "#D1FAE5", text: "#065F46", dot: "#10B981" },
-  processing: { label: "Traitement", bg: "#DBEAFE", text: "#1E40AF", dot: "#3B82F6" },
-  shipped: { label: "Expédiée", bg: "#EDE9FE", text: "#4C1D95", dot: "#8B5CF6" },
-  cancelled: { label: "Annulée", bg: "#FEE2E2", text: "#991B1B", dot: "#EF4444" },
-  refunded: { label: "Remboursée", bg: "#F3F4F6", text: "#1F2937", dot: "#6B7280" },
+  pending: {
+    label: "En attente",
+    bg: "#FEF3C7",
+    text: "#92400E",
+    dot: "#F59E0B",
+  },
+  paid: {
+    label: "Payée",
+    bg: "#D1FAE5",
+    text: "#065F46",
+    dot: "#10B981",
+  },
+  processing: {
+    label: "Traitement",
+    bg: "#DBEAFE",
+    text: "#1E40AF",
+    dot: "#3B82F6",
+  },
+  shipped: {
+    label: "Expédiée",
+    bg: "#EDE9FE",
+    text: "#4C1D95",
+    dot: "#8B5CF6",
+  },
+  cancelled: {
+    label: "Annulée",
+    bg: "#FEE2E2",
+    text: "#991B1B",
+    dot: "#EF4444",
+  },
+  refunded: {
+    label: "Remboursée",
+    bg: "#F3F4F6",
+    text: "#1F2937",
+    dot: "#6B7280",
+  },
 };
 
 const stripeKey = process.env.STRIPE_SECRET_KEY;
@@ -35,7 +65,11 @@ if (!stripeKey) {
 }
 const stripe = new Stripe(stripeKey);
 
-export default async function OrderPage({ params }: { params: { id: string } }) {
+export default async function OrderPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const cookieStore = cookies();
 
   const supabase = createServerComponentClient(
@@ -84,11 +118,14 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
 
   const items = itemsRaw ?? [];
 
-  const eur = (n: number) =>
+  // ✅ Les montants sont stockés en CENTIMES en base.
+  const eur = (cents: number) =>
     new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: order.currency || "EUR",
-    }).format(Math.max(0, Number.isFinite(n) ? n : 0));
+    }).format(
+      Math.max(0, Number.isFinite(cents) ? cents : 0) / 100 // centimes → euros
+    );
 
   let status = (order.status as OrderStatus) || "pending";
   let meta = STATUS_META[status];
@@ -98,7 +135,6 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
 
   try {
     if (order.payment_intent_client_secret) {
-      // si tu as une colonne payment_intent_client_secret
       clientSecret = order.payment_intent_client_secret as string;
     } else if (order.payment_intent_id) {
       const pi = await stripe.paymentIntents.retrieve(
@@ -167,7 +203,8 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           {items.map((it: any) => (
             <li key={it.id}>
               {it.name} {it.sku ? `(${it.sku})` : ""} – {it.qty} ×{" "}
-              {eur(Number(it.unit_price))} = {eur(Number(it.line_total))}
+              {eur(Number(it.unit_price))} ={" "}
+              {eur(Number(it.line_total))}
             </li>
           ))}
         </ul>

@@ -4,11 +4,11 @@
 import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState } from "react";
 import { useCart } from "@/lib/useCart";
 import { clearCart, removeCartItem, updateCartQty } from "@/lib/cartDb";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useCallback } from "react";
+
 
 const eur = (n: number) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(
@@ -21,21 +21,28 @@ const clamp = (n: number, min: number) =>
 export default function CartClient() {
   const supabase = createClientComponentClient();
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
 
   const items = useCart((s) => s.items);
   const setQtyLocal = useCart((s) => s.setQty);
   const removeLocal = useCart((s) => s.remove);
   const clearLocal = useCart((s) => s.clear);
 
-  async function syncQty(productId: string, sku: string | undefined, nextQty: number, minQty?: number) {
+  async function syncQty(
+    productId: string,
+    sku: string | undefined,
+    nextQty: number,
+    minQty?: number
+  ) {
     const min = minQty ?? 1;
     const safeQty = clamp(nextQty, min);
 
-    // UI instantanée
+    // Mise à jour immédiate du panier local
     setQtyLocal(productId, sku, safeQty);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       await updateCartQty(user.id, productId, sku ?? null, safeQty);
       window.location.reload();
@@ -43,7 +50,9 @@ export default function CartClient() {
   }
 
   async function onRemove(productId: string, sku?: string) {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) await removeCartItem(user.id, productId, sku ?? null);
 
     removeLocal(productId, sku);
@@ -51,44 +60,61 @@ export default function CartClient() {
   }
 
   async function onClear() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) await clearCart(user.id);
 
     clearLocal();
     window.location.reload();
   }
 
-  const subTotal = items.reduce((s, it) => s + (Number(it.unitPrice) || 0) * it.qty, 0);
+  // Montants en euros (uniquement pour l’affichage)
+  const subTotal = items.reduce(
+    (s, it) => s + (Number(it.unitPrice) || 0) * it.qty,
+    0
+  );
   const tvaRate = 0.2;
   const tva = subTotal * tvaRate;
   const total = subTotal + tva;
-  const onCheckout = useCallback(() => {
-    startTransition(async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login?next=/cart");
-        return;
-      }
 
+  async function onCheckout() {
+    if (loading) return;
+    setLoading(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      router.push("/login?next=/cart");
+      return;
+    }
+
+    try {
       const res = await fetch("/api/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items,
-          currency: "EUR"
+          currency: "EUR", // le backend recalcule les montants en centimes
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
         console.error("Order failed:", data?.error || res.statusText);
+        setLoading(false);
         return;
       }
 
       router.push(`/order/${data.orderId}`);
-    });
-  }, [items, subTotal, tva, total, router, supabase]);
-
+    } catch (e) {
+      console.error("Order error:", e);
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="panel" style={{ padding: 18 }}>
@@ -98,7 +124,8 @@ export default function CartClient() {
             textAlign: "center",
             padding: "28px 0",
             borderRadius: 12,
-            background: "linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01))",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01))",
             border: "1px solid var(--line)",
           }}
         >
@@ -118,7 +145,10 @@ export default function CartClient() {
               const min = it.minQty ?? 1;
 
               return (
-                <div key={`${it.id}-${it.sku ?? ""}`} className="cart-row">
+                <div
+                  key={`${it.id}-${it.sku ?? ""}`}
+                  className="cart-row"
+                >
                   <div className="cart-col media">
                     {it.image ? (
                       <Image
@@ -148,7 +178,7 @@ export default function CartClient() {
                       className="btn btn-ghost btn-sm icon-only"
                       aria-label="Diminuer"
                       onClick={() => syncQty(it.id, it.sku, it.qty - 1, min)}
-                      disabled={isPending}
+                      disabled={loading}
                     >
                       <Minus size={16} />
                     </button>
@@ -158,17 +188,26 @@ export default function CartClient() {
                       pattern="[0-9]*"
                       value={it.qty}
                       onChange={(e) =>
-                        syncQty(it.id, it.sku, parseInt(e.target.value || "0", 10), min)
+                        syncQty(
+                          it.id,
+                          it.sku,
+                          parseInt(e.target.value || "0", 10),
+                          min
+                        )
                       }
-                      style={{ width: 72, textAlign: "center", height: 36 }}
+                      style={{
+                        width: 72,
+                        textAlign: "center",
+                        height: 36,
+                      }}
                       aria-label="Quantité"
-                      disabled={isPending}
+                      disabled={loading}
                     />
                     <button
                       className="btn btn-ghost btn-sm icon-only"
                       aria-label="Augmenter"
                       onClick={() => syncQty(it.id, it.sku, it.qty + 1, min)}
-                      disabled={isPending}
+                      disabled={loading}
                     >
                       <Plus size={16} />
                     </button>
@@ -180,7 +219,7 @@ export default function CartClient() {
                     <button
                       className="btn btn-ghost btn-sm"
                       onClick={() => onRemove(it.id, it.sku)}
-                      disabled={isPending}
+                      disabled={loading}
                     >
                       <Trash2 size={16} />
                       Retirer
@@ -192,7 +231,11 @@ export default function CartClient() {
           </div>
 
           <div className="cart-actions">
-            <button className="btn btn-ghost" onClick={onClear} disabled={isPending}>
+            <button
+              className="btn btn-ghost"
+              onClick={onClear}
+              disabled={loading}
+            >
               Vider le panier
             </button>
 
@@ -209,8 +252,13 @@ export default function CartClient() {
                 <span>Total TTC</span>
                 <strong>{eur(total)}</strong>
               </div>
-              <button className="btn btn-primary" style={{ width: "100%", marginTop: 10 }} disabled={isPending} onClick={onCheckout} >
-                Passer au paiement
+              <button
+                className="btn btn-primary"
+                style={{ width: "100%", marginTop: 10 }}
+                disabled={loading}
+                onClick={onCheckout}
+              >
+                {loading ? "Création de la commande..." : "Passer au paiement"}
               </button>
             </div>
           </div>

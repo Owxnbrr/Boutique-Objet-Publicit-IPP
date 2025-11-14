@@ -12,19 +12,22 @@ type CartItem = {
   id: string;            // = product_id
   sku?: string | null;
   name: string;
-  unitPrice: number;     // en centimes
+  unitPrice: number;     // EN EUROS côté client
   qty: number;
   image?: string | null;
 };
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripeKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeKey) {
+  throw new Error("Missing STRIPE_SECRET_KEY env variable");
+}
+const stripe = new Stripe(stripeKey);
 
 export async function POST(req: Request) {
   try {
-    // 🔴 IMPORTANT : on crée le cookieStore
+    // Cookies + client Supabase
     const cookieStore = cookies();
-
-    // ✅ On passe explicitement l’URL + la clé à Supabase
+    
     const supabase = createRouteHandlerClient(
       { cookies: () => cookieStore },
       {
@@ -41,22 +44,37 @@ export async function POST(req: Request) {
 
     const body = (await req.json()) as {
       items: CartItem[];
-      currency?: string; // "EUR" par défaut
-      // le total venant du client n’est pas fiable → on recalcule
+      currency?: string;
     };
 
-    const items = body?.items ?? [];
+    const rawItems = body?.items ?? [];
     const currency = (body?.currency || "EUR").toLowerCase();
 
-    if (!Array.isArray(items) || items.length === 0) {
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
       return new Response("Empty cart", { status: 400 });
     }
 
-    // --- 1) Recalcul serveur des montants (sécurité) ---
-    const subTotal = items.reduce((s, it) => s + (Number(it.unitPrice) || 0) * (it.qty || 0), 0);
-    const tvaRate = 0.2; // adapte si besoin ou utilise Stripe Tax
+    // ✅ On convertit les prix en centimes pour la base + Stripe
+    const items = rawItems.map((it) => {
+      const unitEur = Number(it.unitPrice) || 0;
+      const unitCents = Math.round(unitEur * 100); // 72.5€ → 7250
+      const qty = Number.isFinite(it.qty) && it.qty > 0 ? it.qty : 1;
+
+      return {
+        ...it,
+        qty,
+        unitCents,
+      };
+    });
+
+    // --- 1) Recalcul serveur des montants (en CENTIMES) ---
+    const subTotal = items.reduce(
+      (s, it) => s + it.unitCents * it.qty,
+      0
+    );
+    const tvaRate = 0.2;
     const taxTotal = Math.round(subTotal * tvaRate);
-    const total = subTotal + taxTotal; // en centimes
+    const total = subTotal + taxTotal; // tout en centimes
 
     // --- 2) Créer la commande ---
     const { data: order, error: orderErr } = await supabase
@@ -64,10 +82,9 @@ export async function POST(req: Request) {
       .insert({
         status: "pending",
         currency: currency.toUpperCase(),
-        // si tu as ces colonnes, elles seront remplies ; sinon garde juste total
-        sub_total: subTotal,
-        tax_total: taxTotal,
-        total,
+        sub_total: subTotal,     // bigint en centimes
+        tax_total: taxTotal,     // bigint en centimes
+        total,                   // bigint en centimes
         user_id: user.id,
       })
       .select("*")
@@ -87,19 +104,22 @@ export async function POST(req: Request) {
       sku: it.sku ?? null,
       name: it.name,
       qty: it.qty,
-      unit_price: Number(it.unitPrice) || 0,
-      line_total: (Number(it.unitPrice) || 0) * it.qty,
+      unit_price: it.unitCents,            // bigint en centimes
+      line_total: it.unitCents * it.qty,   // bigint en centimes
       thumbnail_url: it.image ?? null,
     }));
 
-    const { error: itemsErr } = await supabase.from("order_items").insert(rows);
+    const { error: itemsErr } = await supabase
+      .from("order_items")
+      .insert(rows);
+
     if (itemsErr) {
       return Response.json({ error: itemsErr.message }, { status: 400 });
     }
 
-    // --- 4) Créer le PaymentIntent Stripe ---
+    // --- 4) PaymentIntent Stripe (en centimes) ---
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: total, // en centimes
+      amount: total,
       currency,
       automatic_payment_methods: { enabled: true },
       metadata: {
@@ -108,8 +128,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // --- 5) Sauvegarder l’id du PaymentIntent (si colonne dispo) ---
-    // (Ignoré si la colonne n’existe pas)
+    // --- 5) Sauvegarder l’id du PaymentIntent ---
     try {
       await supabase
         .from("orders")
@@ -119,13 +138,16 @@ export async function POST(req: Request) {
       // pas bloquant
     }
 
-    // --- 6) Réponse pour le client ---
+    // --- 6) Réponse client ---
     return Response.json({
       orderId: order.id,
-      clientSecret: paymentIntent.client_secret, // pour <PaymentElement />
+      clientSecret: paymentIntent.client_secret,
     });
   } catch (e: any) {
     console.error(e);
-    return Response.json({ error: e?.message ?? "unknown error" }, { status: 500 });
+    return Response.json(
+      { error: e?.message ?? "unknown error" },
+      { status: 500 }
+    );
   }
 }
