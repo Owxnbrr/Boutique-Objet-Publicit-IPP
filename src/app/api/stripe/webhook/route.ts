@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { admin } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   const sig = req.headers.get("stripe-signature")!;
   const rawBody = await req.text(); // Route Handler: text() pour garder le raw body
 
