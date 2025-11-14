@@ -74,11 +74,8 @@ export default function CartClient() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items,         
-          currency: "EUR",
-          subTotal,
-          tva,
-          total,
+          items,
+          currency: "EUR"
         }),
       });
 
