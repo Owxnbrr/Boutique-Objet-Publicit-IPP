@@ -61,11 +61,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
         </div>
 
         <VariantPicker
-          variants={variants.map((v: any) => ({
+          variants={variants?.map((v: any) => ({
             sku: v.sku as string,
             color: v.color ?? null,
             size: v.size ?? null,
           }))}
+
           productName={product.name}
           minQty={minQty}
           thumbnailUrl={product.thumbnail_url ?? null}
