@@ -17,7 +17,7 @@ const STATUS_META: Record<OrderStatus, { label: string; bg: string; text: string
   refunded: { label: "Remboursée", bg: "#F3F4F6", text: "#1F2937", dot: "#6B7280" },
 };
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2024-06-20" });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export default async function OrderPage({ params }: { params: { id: string } }) {
   const supabase = createServerComponentClient({ cookies });
