@@ -24,7 +24,15 @@ const STATUS_META: Record<OrderStatus, { label: string; bg: string; text: string
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export default async function OrderPage({ params }: { params: { id: string } }) {
-  const supabase = createServerComponentClient({ cookies });
+  const cookieStore = cookies();
+
+  const supabase = createServerComponentClient(
+    { cookies: () => cookieStore },
+    {
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    }
+  );
 
   // 1) Auth
   const { data: { user } } = await supabase.auth.getUser();

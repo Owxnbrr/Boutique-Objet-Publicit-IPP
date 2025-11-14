@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
-
 type CartItem = {
   id: string;            // = product_id
   sku?: string | null;
@@ -20,13 +19,24 @@ type CartItem = {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-
 export async function POST(req: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    // 🔴 IMPORTANT : on crée le cookieStore
+    const cookieStore = cookies();
+
+    // ✅ On passe explicitement l’URL + la clé à Supabase
+    const supabase = createRouteHandlerClient(
+      { cookies: () => cookieStore },
+      {
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      }
+    );
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
+
     if (!user) return new Response("Unauthorized", { status: 401 });
 
     const body = (await req.json()) as {
