@@ -96,9 +96,9 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
       <div className="panel" style={{ marginTop: 16 }}>
         <h3 className="h2" style={{ marginTop: 0 }}>Récapitulatif</h3>
         <ul style={{ margin: 0, paddingLeft: 18 }}>
-          {items.map((it: any) => (
+          {items?.map((it: any) => (
             <li key={it.id}>
-              {it.name} {it.sku ? `(${it.sku})` : ""} — {it.qty} × {eur(Number(it.unit_price))} = {eur(Number(it.line_total))}
+              {it.name} {it.sku ? `(${it.sku})` : ''} – {it.qty} × {eur(Number(it.unit_price))} = {eur(Number(it.line_total))}
             </li>
           ))}
         </ul>
