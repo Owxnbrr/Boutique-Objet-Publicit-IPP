@@ -10,7 +10,10 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 
+
 type OrderStatus = 'pending'|'paid'|'processing'|'shipped'|'cancelled'|'refunded';
+
+const router = useRouter();
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
   pending: '#F59E0B',
@@ -298,11 +301,10 @@ export default function ClientDashboardPage() {
                               key={o.id}
                               className="has-status-bg"
                               style={{ ['--row-bg' as any]: rowBg }}
+                              onClick={() => router.push(`/order/${o.id}`)}
                             >
                               <td>
-                                <a href={`/order/${o.id}`}>
                                   {o.display_name ?? `#${o.id}`}
-                                </a>
                               </td>
                               <td>{new Date(o.created_at).toLocaleString()}</td>
                               <td>{fmtEur(Number(o.total || 0))}</td>
