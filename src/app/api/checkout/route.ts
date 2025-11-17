@@ -20,8 +20,8 @@ type CheckoutBody = {
   customer_address?: string | null;
   customer_note?: string | null;
 
-  currency: string; 
-  total: number;       // en CENTIMES côté front/Stripe
+  currency: string;
+  total: number;        // ⚠️ on considère maintenant que c’est en CENTIMES
   lines: OrderLineInput[];
 
   shipping_method?: "delivery" | "pickup" | null;
@@ -48,15 +48,13 @@ export async function POST(req: Request) {
     } = await supabase.auth.getSession();
     const userId = session?.user?.id ?? null;
 
-    // body.total est en CENTIMES → on stocke en EUROS dans la table orders
-    const totalEuros = (body.total ?? 0) / 100;
-
     const { data: order, error: orderErr } = await supabase
       .from("orders")
       .insert({
         status: "pending",
         currency: body.currency ?? "EUR",
-        total: totalEuros,
+        // ✅ on stocke les centimes directement
+        total: body.total ?? 0,
 
         customer_name: body.customer_name,
         customer_email: body.customer_email,
@@ -80,14 +78,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert order_items
     const linesToInsert = body.lines.map((l) => ({
       order_id: order.id,
       product_id: l.product_id,
       sku: l.sku ?? null,
       name: l.name,
       qty: l.qty,
-      // unit_price et line_total sont déjà en euros
+      // ici tes prix sont déjà en euros → OK
       unit_price: l.unit_price,
       line_total: l.line_total ?? Math.round(l.unit_price * l.qty * 100) / 100,
       thumbnail_url: l.thumbnail_url ?? null,

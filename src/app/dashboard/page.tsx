@@ -122,13 +122,13 @@ export default function ClientDashboardPage() {
         const byDay = new Map<string, number>();
         list.forEach((o: any) => {
           const k = dmy(o.created_at);
-          byDay.set(k, (byDay.get(k) || 0) + Number(o.total || 0));
+          byDay.set(k, (byDay.get(k) || 0) + Number(o.total || 0)); // total en CENTIMES
         });
         const days: { date: string; total: number }[] = [];
         for (let i = 30; i >= 0; i--) {
           const d = new Date(); d.setDate(d.getDate() - i);
           const k = dmy(d);
-          days.push({ date: k, total: Math.round((byDay.get(k) || 0) * 100) / 100 });
+          days.push({ date: k, total: (byDay.get(k) || 0) / 100 });
         }
 
         const buckets = new Map<OrderStatus, number>();
@@ -188,7 +188,7 @@ export default function ClientDashboardPage() {
               <div className="grid-kpi">
                 <div className="kpi">
                   <div className="label">Total payé (30j)</div>
-                  <div className="value">{fmtEur(kpis.spent30)}</div>
+                  <div className="value">{fmtEur(kpis.spent30 / 100)}</div>
                   <div className="sub">Toutes taxes comprises</div>
                 </div>
                 <div className="kpi">
@@ -224,8 +224,15 @@ export default function ClientDashboardPage() {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
                         <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                        <YAxis tickFormatter={(v:any)=>`${Math.round(Number(v)/100)}€`} width={50} />
-                        <Tooltip formatter={(v:any)=>fmtEur(Number(v))} labelFormatter={(l)=>l} />
+                        <YAxis
+                          tickFormatter={(v: any) => `${Math.round(Number(v))}€`}
+                          width={50}
+                        />
+                        <Tooltip
+                          formatter={(v: any) => fmtEur(Number(v))}
+                          labelFormatter={(l) => l}
+                        />
+
                         <Area
                           type="monotone"
                           dataKey="total"
@@ -309,7 +316,7 @@ export default function ClientDashboardPage() {
                               </td>
 
                               <td>{new Date(o.created_at).toLocaleString()}</td>
-                              <td>{fmtEur(Number(o.total || 0))}</td>
+                              <td>{fmtEur(Number(o.total || 0) / 100)}</td>
                               <td><StatusPill status={s} /></td>
                             </tr>
                           );
