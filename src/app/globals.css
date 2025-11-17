@@ -1495,3 +1495,15 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 }
 
 
+.table tr.has-status-bg {
+  cursor: pointer;
+}
+
+.table tr.has-status-bg a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.table tr.has-status-bg a:hover {
+  text-decoration: underline; /* ou rien si tu veux garder clean */
+}

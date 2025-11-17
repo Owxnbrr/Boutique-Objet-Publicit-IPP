@@ -294,17 +294,20 @@ export default function ClientDashboardPage() {
                           const rowBg = hexToRgba(color, 0.12);
 
                           return (
-                            <tr><a
+                            <tr
                               key={o.id}
                               className="has-status-bg"
                               style={{ ['--row-bg' as any]: rowBg }}
-                              href={`/order/${o.id}`}
                             >
-                              <td>{o.display_name ?? `#${o.id}`}</td>
+                              <td>
+                                <a href={`/order/${o.id}`}>
+                                  {o.display_name ?? `#${o.id}`}
+                                </a>
+                              </td>
                               <td>{new Date(o.created_at).toLocaleString()}</td>
                               <td>{fmtEur(Number(o.total || 0))}</td>
                               <td><StatusPill status={s} /></td>
-                            </a></tr>
+                            </tr>
                           );
                         })}
                         {!recentOrders.length && (
