@@ -21,7 +21,7 @@ type CheckoutBody = {
   customer_note?: string | null;
 
   currency: string; 
-  total: number;    
+  total: number;       // en CENTIMES côté front/Stripe
   lines: OrderLineInput[];
 
   shipping_method?: "delivery" | "pickup" | null;
@@ -43,15 +43,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const userId = session?.user?.id ?? null;
+
+    // body.total est en CENTIMES → on stocke en EUROS dans la table orders
+    const totalEuros = (body.total ?? 0) / 100;
 
     const { data: order, error: orderErr } = await supabase
       .from("orders")
       .insert({
         status: "pending",
         currency: body.currency ?? "EUR",
-        total: body.total ?? 0,
+        total: totalEuros,
 
         customer_name: body.customer_name,
         customer_email: body.customer_email,
@@ -69,7 +74,10 @@ export async function POST(req: Request) {
 
     if (orderErr || !order) {
       console.error("order insert error:", orderErr);
-      return NextResponse.json({ error: "Création commande échouée" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Création commande échouée" },
+        { status: 500 }
+      );
     }
 
     // Insert order_items
@@ -79,15 +87,22 @@ export async function POST(req: Request) {
       sku: l.sku ?? null,
       name: l.name,
       qty: l.qty,
+      // unit_price et line_total sont déjà en euros
       unit_price: l.unit_price,
       line_total: l.line_total ?? Math.round(l.unit_price * l.qty * 100) / 100,
       thumbnail_url: l.thumbnail_url ?? null,
     }));
 
-    const { error: itemsErr } = await supabase.from("order_items").insert(linesToInsert);
+    const { error: itemsErr } = await supabase
+      .from("order_items")
+      .insert(linesToInsert);
+
     if (itemsErr) {
       console.error("order_items insert error:", itemsErr);
-      return NextResponse.json({ error: "Insertion lignes échouée" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Insertion lignes échouée" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ id: order.id }, { status: 200 });
