@@ -294,7 +294,7 @@ export default function ClientDashboardPage() {
                           const rowBg = hexToRgba(color, 0.12);
 
                           return (
-                            <tr
+                            <button
                               key={o.id}
                               className="has-status-bg"
                               style={{ ['--row-bg' as any]: rowBg }}
@@ -303,7 +303,7 @@ export default function ClientDashboardPage() {
                               <td>{new Date(o.created_at).toLocaleString()}</td>
                               <td>{fmtEur(Number(o.total || 0))}</td>
                               <td><StatusPill status={s} /></td>
-                            </tr>
+                            </button>
                           );
                         })}
                         {!recentOrders.length && (
