@@ -304,8 +304,11 @@ export default function ClientDashboardPage() {
                               onClick={() => router.push(`/order/${o.id}`)}
                             >
                               <td>
+                                <a href={`/order/${o.id}`} onClick={e => e.stopPropagation()}>
                                   {o.display_name ?? `#${o.id}`}
+                                </a>
                               </td>
+
                               <td>{new Date(o.created_at).toLocaleString()}</td>
                               <td>{fmtEur(Number(o.total || 0))}</td>
                               <td><StatusPill status={s} /></td>
