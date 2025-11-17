@@ -13,7 +13,6 @@ import {
 
 type OrderStatus = 'pending'|'paid'|'processing'|'shipped'|'cancelled'|'refunded';
 
-const router = useRouter();
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
   pending: '#F59E0B',
