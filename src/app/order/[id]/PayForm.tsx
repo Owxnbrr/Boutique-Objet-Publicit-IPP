@@ -24,13 +24,16 @@ function InnerForm({ orderId }: { orderId: string }) {
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          // après 3DS/confirm, on revient sur la page commande
-          return_url: `${window.location.origin}/order/${orderId}`,
+          // Après 3DS / confirmation, Stripe redirige vers la page de succès
+          return_url: `${window.location.origin}/checkout/success?orderId=${orderId}`,
         },
       });
 
-      if (error) setMsg(error.message || "Le paiement a échoué.");
-      setLoading(false);
+      if (error) {
+        setMsg(error.message || "Le paiement a échoué.");
+        setLoading(false);
+      }
+      // si pas d'erreur, Stripe va rediriger automatiquement vers return_url
     },
     [stripe, elements, orderId]
   );
