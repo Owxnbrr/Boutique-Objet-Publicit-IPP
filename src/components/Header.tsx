@@ -38,14 +38,6 @@ export default function Header({ user, logout, CartBadge }: Props) {
       <div className="container header__inner">
         <Link href="/" className="brand">
           <Image
-            src="/logo.svg"
-            alt="Logo Anda"
-            width={32}
-            height={32}
-            className="brand_icon"
-          />
-
-          <Image
             src="/logo-ipp-blanc.webp"
             alt="Anda"
             width={140}
