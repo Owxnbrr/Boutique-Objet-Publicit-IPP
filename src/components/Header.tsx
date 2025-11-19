@@ -11,7 +11,6 @@ type Props = {
   CartBadge?: React.ComponentType<{ userId: string }>;
 };
 
-
 export default function Header({ user, logout, CartBadge }: Props) {
   const [open, setOpen] = useState(false);
   const clusterRef = useRef<HTMLDivElement>(null);
