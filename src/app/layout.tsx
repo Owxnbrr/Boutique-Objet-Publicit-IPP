@@ -10,6 +10,11 @@ import { cookies } from "next/headers";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 
 import Header from "@/components/Header";
+export const metadata = {
+  icons: {
+    icon: "/logo.svg",
+  },
+};
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const supabase = supabaseServer();

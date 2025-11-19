@@ -3,12 +3,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 type Props = {
   user: { id: string } | null;
   logout: () => Promise<void>;
   CartBadge?: React.ComponentType<{ userId: string }>;
 };
+
 
 export default function Header({ user, logout, CartBadge }: Props) {
   const [open, setOpen] = useState(false);
@@ -29,13 +31,29 @@ export default function Header({ user, logout, CartBadge }: Props) {
     document.documentElement.classList.toggle("no-scroll", open);
   }, [open]);
 
+
+
   return (
     <header className="header">
       <div className="container header__inner">
         <Link href="/" className="brand">
-          <span className="brand-badge">IPP</span>
-        </Link>
+          <Image
+            src="/logo.svg"
+            alt="Logo Anda"
+            width={32}
+            height={32}
+            className="brand_icon"
+          />
 
+          <Image
+            src="/logo-ipp-blanc.webp"
+            alt="Anda"
+            width={140}
+            height={40}
+            className="brand_logo"
+            priority
+          />
+        </Link>
         <div className="nav-cluster" ref={clusterRef}>
           <button
             className={`hamburger ${open ? "is-active" : ""}`}
