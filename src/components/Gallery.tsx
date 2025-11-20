@@ -26,7 +26,7 @@ export default function Gallery({
         style={{
           position: 'relative',
           width: '100%',
-          height: '90px',
+          height: '700px',
           aspectRatio: '4/3',
           borderRadius: 16,
           border: '1px solid var(--line)',
