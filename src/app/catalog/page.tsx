@@ -1,56 +1,57 @@
 // src/app/catalog/page.tsx
+import Link from "next/link";
 import { admin } from "@/lib/db";
 import ClientGrid from "@/components/ClientGrid";
 
-const PAGE_SIZE = 48;
-
-type CatalogPageProps = {
+type Props = {
   searchParams?: {
     page?: string;
     q?: string;
+    category?: string;
   };
 };
 
-export default async function CatalogPage({ searchParams }: CatalogPageProps) {
+const PAGE_SIZE = 48;
+
+export default async function CatalogPage({ searchParams }: Props) {
   const db = admin();
 
-  const pageParam = Number(searchParams?.page ?? "1");
-  const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const page = Math.max(parseInt(searchParams?.page ?? "1", 10) || 1, 1);
+  const q = (searchParams?.q ?? "").trim();
+  const category = (searchParams?.category ?? "").trim();
 
-  const rawQ = (searchParams?.q ?? "").trim();
-  const q = rawQ.length > 0 ? rawQ : "";
-
-  // --- Construire la requête Supabase ---
   let query = db
     .from("products")
-    .select("id, name, thumbnail_url, min_qty", { count: "exact" });
+    .select("id, name, thumbnail_url, min_qty, category", { count: "exact" });
 
-  // Filtre global sur le nom (tu peux ajouter category / brand si tu veux)
   if (q) {
+    // recherche sur TOUTES les lignes, pas juste sur la page courante
     query = query.ilike("name", `%${q}%`);
-    // exemple pour filtrer aussi sur la catégorie :
-    // query = query.or(`name.ilike.%${q}%,category.ilike.%${q}%`);
   }
 
-  const from = (currentPage - 1) * PAGE_SIZE;
+  if (category) {
+    query = query.eq("category", category);
+  }
+
+  const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const { data, count, error } = await query
-    .order("name", { ascending: true })
-    .range(from, to);
+  const { data, error, count } = await query.order("name").range(from, to);
 
   if (error) {
-    console.error("Erreur Supabase /catalog :", error);
+    console.error(error);
+    return <p>Erreur de chargement du catalogue.</p>;
   }
 
   const rows = data ?? [];
-  const total = count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const total = count ?? rows.length;
+  const totalPages = Math.max(Math.ceil(total / PAGE_SIZE), 1);
 
-  const makePageHref = (page: number) => {
+  const makePageHref = (targetPage: number) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
-    if (page > 1) params.set("page", String(page));
+    if (category) params.set("category", category);
+    if (targetPage > 1) params.set("page", String(targetPage));
     const qs = params.toString();
     return qs ? `/catalog?${qs}` : "/catalog";
   };
@@ -60,68 +61,110 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
       <h1 className="h1">Catalogue</h1>
       <p className="muted" style={{ marginTop: -6 }}>
         Produits importés depuis votre flux ANDA
+        {category && (
+          <>
+            {" "}
+            • catégorie <strong>{category}</strong>
+          </>
+        )}
       </p>
 
-      {/* Barre de recherche globale */}
+      {/* Barre de recherche */}
       <form
         method="GET"
         style={{ margin: "18px 0 24px", maxWidth: 420 }}
       >
         <input
-          name="q"
-          defaultValue={q}
-          placeholder="Rechercher un produit…"
           className="input"
+          type="text"
+          name="q"
+          placeholder="Rechercher un produit…"
+          defaultValue={q}
         />
+        {/* on garde la catégorie si on vient de /categories */}
+        {category && (
+          <input type="hidden" name="category" value={category} />
+        )}
       </form>
 
-      {/* Résultats */}
       {rows.length === 0 ? (
-        <p style={{ marginTop: 24 }}>
-          {q
-            ? `Aucun produit ne correspond à « ${q} ».`
-            : "Aucun produit à afficher."}
-        </p>
+        <p>Aucun produit trouvé pour cette recherche.</p>
       ) : (
-        <ClientGrid rows={rows as any[]} />
-      )}
+        <>
+          <ClientGrid rows={rows as any[]} />
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <nav
-          aria-label="Pagination catalogue"
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            marginTop: 32,
-          }}
-        >
-          <a
-            href={makePageHref(Math.max(1, currentPage - 1))}
-            className="btn btn-ghost"
-            aria-disabled={currentPage === 1}
-          >
-            Précédent
-          </a>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav
+              aria-label="Pagination du catalogue"
+              style={{
+                display: "flex",
+                gap: 8,
+                marginTop: 24,
+                alignItems: "center",
+              }}
+            >
+              <Link
+                href={makePageHref(Math.max(page - 1, 1))}
+                aria-disabled={page === 1}
+                style={{
+                  pointerEvents: page === 1 ? "none" : undefined,
+                  opacity: page === 1 ? 0.4 : 1,
+                }}
+                className="btn btn-ghost"
+              >
+                Précédent
+              </Link>
 
-          {/* Page actuelle */}
-          <span style={{ padding: "6px 12px", borderRadius: 9999, background: "#27272f" }}>
-            {currentPage}
-          </span>
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
+                let p = i + 1;
+                if (totalPages > 5) {
+                  const start = Math.max(
+                    1,
+                    Math.min(page - 2, totalPages - 4)
+                  );
+                  p = start + i;
+                }
+                return (
+                  <Link
+                    key={p}
+                    href={makePageHref(p)}
+                    className={`btn btn-ghost ${
+                      p === page ? "btn-primary" : ""
+                    }`}
+                    aria-current={p === page ? "page" : undefined}
+                  >
+                    {p}
+                  </Link>
+                );
+              })}
 
-          <span style={{ opacity: 0.7 }}>
-            / {totalPages}
-          </span>
+              {totalPages > 5 && page + 2 < totalPages && (
+                <>
+                  <span style={{ opacity: 0.7 }}>…</span>
+                  <Link
+                    href={makePageHref(totalPages)}
+                    className="btn btn-ghost"
+                  >
+                    {totalPages}
+                  </Link>
+                </>
+              )}
 
-          <a
-            href={makePageHref(Math.min(totalPages, currentPage + 1))}
-            className="btn btn-ghost"
-            aria-disabled={currentPage === totalPages}
-          >
-            Suivant
-          </a>
-        </nav>
+              <Link
+                href={makePageHref(Math.min(page + 1, totalPages))}
+                aria-disabled={page === totalPages}
+                style={{
+                  pointerEvents: page === totalPages ? "none" : undefined,
+                  opacity: page === totalPages ? 0.4 : 1,
+                }}
+                className="btn btn-ghost"
+              >
+                Suivant
+              </Link>
+            </nav>
+          )}
+        </>
       )}
     </section>
   );
