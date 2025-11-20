@@ -15,14 +15,6 @@ export default function ClientGrid({ rows }: { rows: Row[] }) {
 
   return (
     <div>
-      <div style={{ maxWidth: 420, margin: '12px 0 18px' }}>
-        <input
-          className="input"
-          placeholder="Rechercher un produit…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-      </div>
 
       <div className="grid">
         {filtered.map((p) => (
