@@ -63,6 +63,10 @@ export default function Header({ user, logout, CartBadge }: Props) {
               <Link className="btn btn-ghost" href="/catalog" onClick={() => setOpen(false)}>
                 Catalogue
               </Link>
+              <Link href="/categories" className="nav-link">
+                Catégories
+              </Link>
+
 
               {user ? (
                 <>
