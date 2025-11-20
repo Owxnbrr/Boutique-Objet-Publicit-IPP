@@ -148,7 +148,7 @@ export default function QuoteForm({
         {status === 'success' && (
           <p style={{ color: '#16a34a', fontSize: 14 }}>
             ✅ Votre demande de devis a bien été envoyée.  
-            Vous recevrez un email de confirmation.
+            Nous vous répondrons dans les plus brefs délais !
           </p>
         )}
         {status === 'error' && error && (
