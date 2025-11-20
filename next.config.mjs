@@ -1,9 +1,12 @@
-// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["images.unsplash.com", "via.placeholder.com"],
+    domains: [
+      "images.unsplash.com",
+      "via.placeholder.com",
+      "data.cdn-andapresent.com"
+    ],
     formats: ["image/avif", "image/webp"],
   },
   async headers() {
