@@ -6,7 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "lint": "next lint --no-error-on-unmatched-pattern"
+    "lint": "next lint --no-error-on-unmatched-pattern",
+    "import:xml": "tsx src/scripts/import-anda-xml.ts"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^5.3.0",
@@ -14,6 +15,7 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.45.0",
     "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.545.0",
     "next": "14.x",
     "react": "18.x",
@@ -29,6 +31,7 @@
     "@types/node": "^24.10.0",
     "@types/react": "19.2.4",
     "@types/xml2js": "^0.4.14",
+    "tsx": "^4.20.6",
     "typescript": "5.9.3"
   }
 }
