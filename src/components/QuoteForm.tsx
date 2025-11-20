@@ -1,177 +1,158 @@
-"use client";
+// src/components/QuoteForm.tsx
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
 type Variant = {
   sku: string;
-  label: string;
+  color?: string | null;
+  size?: string | null;
 };
 
 type QuoteFormProps = {
   productId: string;
-  productName: string;
   variants: Variant[];
-  defaultVariantSku?: string;
+  minQty: number;
+  defaultSku?: string;
 };
 
 export default function QuoteForm({
   productId,
-  productName,
   variants,
-  defaultVariantSku,
+  minQty,
+  defaultSku,
 }: QuoteFormProps) {
-  const [variantSku, setVariantSku] = useState(
-    defaultVariantSku || variants[0]?.sku || ""
-  );
-  const [quantity, setQuantity] = useState(10);
-  const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
+  const [status, setStatus] =
+    useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
-    setStatus("idle");
+    setStatus('loading');
     setError(null);
 
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    const payload = {
+      product_id: productId,
+      variant_sku:
+        (fd.get('variant_sku') as string) ||
+        variants[0]?.sku ||
+        defaultSku ||
+        undefined,
+      quantity: Number(fd.get('quantity') || minQty || 1),
+      name: fd.get('name'),
+      email: fd.get('email'),
+      company: fd.get('company'),
+      message: fd.get('message'),
+    };
+
     try {
-      const res = await fetch("/api/quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          product_id: productId,
-          variant_sku: variantSku || undefined,
-          quantity: Number(quantity),
-          name,
-          email,
-          company: company || undefined,
-          message:
-            message ||
-            `Demande de devis pour le produit ${productName} (${variantSku}).`,
-        }),
+      const res = await fetch('/api/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
-      const body = await res.json().catch(() => ({}));
-
-      if (!res.ok || !body.ok) {
-        throw new Error(body.error || "Erreur lors de l’envoi du devis.");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(
+          data?.error ||
+            "Une erreur s'est produite lors de l'envoi du devis. Réessaie plus tard."
+        );
+        setStatus('error');
+        return;
       }
 
-      setStatus("ok");
-      // on nettoie un peu le formulaire
-      // (tu peux choisir ce que tu veux garder)
-      // setQuantity(10);
-      // setMessage("");
-    } catch (err: any) {
-      setStatus("error");
-      setError(err.message || "Une erreur est survenue.");
-    } finally {
-      setLoading(false);
+      setStatus('success');
+      setError(null);
+      form.reset();
+    } catch (err) {
+      console.error(err);
+      setError(
+        "Impossible de contacter le serveur. Vérifie ta connexion et réessaie."
+      );
+      setStatus('error');
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Variante */}
-      {variants.length > 0 && (
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Variante</label>
-          <select
-            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-            value={variantSku}
-            onChange={(e) => setVariantSku(e.target.value)}
-          >
-            {variants.map((v) => (
-              <option key={v.sku} value={v.sku}>
-                {v.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Quantité */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Quantité</label>
-        <input
-          type="number"
-          min={1}
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-        />
-      </div>
-
-      {/* Infos contact */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Nom / Prénom</label>
-          <input
-            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Société (optionnel)</label>
-          <input
-            className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Email</label>
-        <input
-          type="email"
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-
-      {/* Message */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Message (optionnel)</label>
-        <textarea
-          rows={3}
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Précisions, date limite, marquage, couleurs..."
-        />
-      </div>
-
-      {/* Bouton + feedback */}
-      <div className="space-y-2">
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-full bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-400 disabled:opacity-50"
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'grid', gap: 10 }}
+      aria-describedby="quote-status"
+    >
+      <label>
+        Variante
+        <select
+          name="variant_sku"
+          defaultValue={defaultSku || variants[0]?.sku}
+          className="input"
         >
-          {loading ? "Envoi en cours..." : "Envoyer la demande"}
-        </button>
+          {variants.map((v) => (
+            <option key={v.sku} value={v.sku}>
+              {v.sku}
+              {v.color ? ` • ${v.color}` : ''}
+              {v.size ? ` • ${v.size}` : ''}
+            </option>
+          ))}
+        </select>
+      </label>
 
-        {status === "ok" && (
-          <p className="text-sm text-emerald-400">
-            ✅ Votre demande a bien été envoyée. Nous vous recontacterons
-            rapidement.
+      <label>
+        Quantité
+        <input
+          className="input"
+          name="quantity"
+          type="number"
+          min={minQty}
+          defaultValue={minQty}
+        />
+      </label>
+
+      <label>
+        Nom / Prénom
+        <input className="input" name="name" type="text" required />
+      </label>
+
+      <label>
+        Email
+        <input className="input" name="email" type="email" required />
+      </label>
+
+      <label>
+        Société (facultatif)
+        <input className="input" name="company" type="text" />
+      </label>
+
+      <label>
+        Message (facultatif)
+        <textarea className="input" name="message" rows={4} />
+      </label>
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button
+          className="btn btn-primary"
+          type="submit"
+          disabled={status === 'loading'}
+        >
+          {status === 'loading' ? 'Envoi…' : 'Envoyer la demande'}
+        </button>
+        <a className="btn btn-ghost" href="/catalog">
+          Retour catalogue
+        </a>
+      </div>
+
+      <div id="quote-status" style={{ minHeight: 20 }}>
+        {status === 'success' && (
+          <p style={{ color: '#16a34a', fontSize: 14 }}>
+            ✅ Votre demande de devis a bien été envoyée.  
+            Vous recevrez un email de confirmation.
           </p>
         )}
-
-        {status === "error" && (
-          <p className="text-sm text-red-400">
-            ❌ Erreur : {error ?? "Impossible d’envoyer la demande."}
-          </p>
+        {status === 'error' && error && (
+          <p style={{ color: '#dc2626', fontSize: 14 }}>⚠️ {error}</p>
         )}
       </div>
     </form>
