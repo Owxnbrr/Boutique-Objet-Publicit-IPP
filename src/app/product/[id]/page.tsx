@@ -2,47 +2,13 @@
 import { admin } from "@/lib/db";
 import Gallery from "@/components/Gallery";
 import VariantPicker from "@/components/VariantPicker";
-import { redirect } from "next/navigation";
+import { sendQuoteEmail } from "@/lib/mailer";
 
-// 📨 Server Action : création d'une demande de devis
-async function createQuote(formData: FormData) {
-  "use server";
-
-  const db = admin();
-
-  const productId = formData.get("product_id")?.toString() || null;
-  const variantSku = formData.get("variant_sku")?.toString() || null;
-  const quantity = Number(formData.get("quantity") || 1);
-
-  const name = formData.get("name")?.toString() || null;
-  const email = formData.get("email")?.toString() || null;
-  const company = formData.get("company")?.toString() || null;
-  const message = formData.get("message")?.toString() || null;
-
-  if (!productId || !name || !email) {
-    console.error("quote: missing required fields", { productId, name, email });
-    redirect("/catalog?quote=error");
-  }
-
-  const { error } = await db.from("quotes").insert({
-    product_id: productId,
-    variant_sku: variantSku,
-    quantity,
-    name,
-    email,
-    company,
-    message,
-  });
-
-  if (error) {
-    console.error("quote insert error", error);
-    redirect("/catalog?quote=error");
-  }
-
-  redirect("/catalog?quote=ok");
-}
-
-export default async function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const db = admin();
 
   const { data: product } = await db
@@ -77,6 +43,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
     baseUnit = Number(priceRow?.unit_price) || 0;
   }
+
   if (!baseUnit && product.base_price != null) {
     baseUnit = Number(product.base_price) || 0;
   }
@@ -131,18 +98,63 @@ export default async function ProductPage({ params }: { params: { id: string } }
           Demander un devis
         </h3>
 
-        {/* 🧾 FORMULAIRE DE DEVIS */}
         <form
-          action={createQuote}
-          style={{ display: "grid", gap: 10, marginTop: 8 }}
-        >
-          {/* product_id caché pour la server action */}
-          <input type="hidden" name="product_id" value={product.id as string} />
+          action={async (fd) => {
+            "use server";
 
-          {/* Variante */}
-          <label className="field">
-            <span>Variante</span>
-            <select name="variant_sku" defaultValue={defaultSku ?? ""}>
+            const db = admin();
+
+            const variantSku =
+              (fd.get("variant_sku") as string) ||
+              variants?.[0]?.sku ||
+              undefined;
+
+            const quantity = Math.max(
+              minQty,
+              Number(fd.get("quantity") || minQty || 1)
+            );
+
+            const name = (fd.get("name") as string) ?? "";
+            const email = (fd.get("email") as string) ?? "";
+            const company = (fd.get("company") as string) || null;
+            const message = (fd.get("message") as string) || null;
+
+            // 1) Enregistrer dans Supabase (table quotes)
+            const { error } = await db.from("quotes").insert({
+              product_id: product.id,
+              variant_sku: variantSku,
+              quantity,
+              name,
+              email,
+              company,
+              message,
+            });
+
+            if (error) {
+              console.error("Erreur insertion quote :", error);
+              return;
+            }
+
+            // 2) T’envoyer un mail avec les infos
+            await sendQuoteEmail({
+              productName: product.name,
+              variantSku,
+              quantity,
+              name,
+              email,
+              company: company ?? undefined,
+              message: message ?? undefined,
+            });
+          }}
+          style={{ display: "grid", gap: 10, marginTop: 10 }}
+        >
+          <label>
+            Variante
+            <select
+              className="input"
+              name="variant_sku"
+              defaultValue={defaultSku}
+            >
               {variants?.map((v: any) => (
                 <option key={v.sku} value={v.sku}>
                   {v.sku} {v.color ? `• ${v.color}` : ""}{" "}
@@ -152,66 +164,38 @@ export default async function ProductPage({ params }: { params: { id: string } }
             </select>
           </label>
 
-          {/* Quantité */}
-          <label className="field">
-            <span>Quantité</span>
+          <label>
+            Quantité
             <input
               className="input"
               name="quantity"
               type="number"
               min={minQty}
               defaultValue={minQty}
-              required
             />
           </label>
 
-          {/* Nom / email / société */}
-          <div style={{ display: "flex", gap: 10 }}>
-            <label className="field" style={{ flex: 1 }}>
-              <span>Nom / Prénom</span>
-              <input
-                className="input"
-                name="name"
-                type="text"
-                placeholder="Votre nom"
-                required
-              />
-            </label>
-
-            <label className="field" style={{ flex: 1 }}>
-              <span>Société (optionnel)</span>
-              <input
-                className="input"
-                name="company"
-                type="text"
-                placeholder="Nom de la société"
-              />
-            </label>
-          </div>
-
-          <label className="field">
-            <span>Email</span>
-            <input
-              className="input"
-              name="email"
-              type="email"
-              placeholder="vous@exemple.com"
-              required
-            />
+          <label>
+            Nom complet
+            <input className="input" name="name" type="text" required />
           </label>
 
-          {/* Message libre */}
-          <label className="field">
-            <span>Message (optionnel)</span>
-            <textarea
-              className="input"
-              name="message"
-              rows={3}
-              placeholder="Précisions, marquage, délais, etc."
-            />
+          <label>
+            Email
+            <input className="input" name="email" type="email" required />
           </label>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+          <label>
+            Société (optionnel)
+            <input className="input" name="company" type="text" />
+          </label>
+
+          <label>
+            Message (optionnel)
+            <textarea className="input" name="message" rows={4} />
+          </label>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
             <button className="btn btn-primary" type="submit">
               Envoyer la demande
             </button>
