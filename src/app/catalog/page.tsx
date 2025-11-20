@@ -1,40 +1,59 @@
 // src/app/catalog/page.tsx
-import { admin } from '@/lib/db';
-import ClientGrid from '@/components/ClientGrid';
+import { admin } from "@/lib/db";
+import ClientGrid from "@/components/ClientGrid";
 
-const PAGE_SIZE = 48; // tu peux mettre 24, 36, 60… comme tu veux
+const PAGE_SIZE = 48;
 
 type CatalogPageProps = {
   searchParams?: {
     page?: string;
+    q?: string;
   };
 };
 
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const db = admin();
 
-  // page actuelle (par défaut 1)
-  const currentPage =
-    searchParams?.page && !Number.isNaN(Number(searchParams.page))
-      ? Math.max(1, Number(searchParams.page))
-      : 1;
+  const pageParam = Number(searchParams?.page ?? "1");
+  const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+
+  const rawQ = (searchParams?.q ?? "").trim();
+  const q = rawQ.length > 0 ? rawQ : "";
+
+  // --- Construire la requête Supabase ---
+  let query = db
+    .from("products")
+    .select("id, name, thumbnail_url, min_qty", { count: "exact" });
+
+  // Filtre global sur le nom (tu peux ajouter category / brand si tu veux)
+  if (q) {
+    query = query.ilike("name", `%${q}%`);
+    // exemple pour filtrer aussi sur la catégorie :
+    // query = query.or(`name.ilike.%${q}%,category.ilike.%${q}%`);
+  }
 
   const from = (currentPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const { data, count, error } = await db
-    .from('products')
-    .select('id, name, thumbnail_url, min_qty', { count: 'exact' })
-    .order('name')
-    .range(from, to); // ⚠️ récupère seulement la "page" demandée
+  const { data, count, error } = await query
+    .order("name", { ascending: true })
+    .range(from, to);
 
   if (error) {
-    console.error('Erreur Supabase /catalog :', error);
+    console.error("Erreur Supabase /catalog :", error);
   }
 
   const rows = data ?? [];
-  const total = count ?? rows.length;
+  const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const makePageHref = (page: number) => {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (page > 1) params.set("page", String(page));
+    const qs = params.toString();
+    return qs ? `/catalog?${qs}` : "/catalog";
+  };
 
   return (
     <section>
@@ -43,101 +62,68 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         Produits importés depuis votre flux ANDA
       </p>
 
-      {/* Grid existante avec la recherche côté client */}
-      <ClientGrid rows={rows as any[]} />
-
-      {/* Navigation entre les pages */}
-      <Pagination currentPage={currentPage} totalPages={totalPages} />
-    </section>
-  );
-}
-
-function Pagination({
-  currentPage,
-  totalPages,
-}: {
-  currentPage: number;
-  totalPages: number;
-}) {
-  if (totalPages <= 1) return null;
-
-  const windowSize = 2; // nb de pages affichées autour de la page courante
-  const start = Math.max(1, currentPage - windowSize);
-  const end = Math.min(totalPages, currentPage + windowSize);
-
-  const pages: number[] = [];
-  for (let p = start; p <= end; p++) {
-    pages.push(p);
-  }
-
-  const makeHref = (page: number) =>
-    page === 1 ? '/catalog' : `/catalog?page=${page}`;
-
-  return (
-    <nav
-      aria-label="Pagination catalogue"
-      className="flex items-center justify-center gap-2 mt-10 mb-6"
-    >
-      {/* Précédent */}
-      <a
-        href={makeHref(Math.max(1, currentPage - 1))}
-        aria-disabled={currentPage === 1}
-        className={`btn btn-ghost px-3 py-1 text-sm ${
-          currentPage === 1 ? 'opacity-40 pointer-events-none' : ''
-        }`}
+      {/* Barre de recherche globale */}
+      <form
+        method="GET"
+        style={{ margin: "18px 0 24px", maxWidth: 420 }}
       >
-        Précédent
-      </a>
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Rechercher un produit…"
+          className="input"
+        />
+        {/* Pas de champ page => à chaque nouvelle recherche on revient à la page 1 */}
+      </form>
 
-      {/* Première page + "…" si on est loin du début */}
-      {start > 1 && (
-        <>
-          <a href={makeHref(1)} className="btn btn-ghost px-3 py-1 text-sm">
-            1
-          </a>
-          {start > 2 && <span className="px-1 text-muted-foreground">…</span>}
-        </>
+      {/* Résultats */}
+      {rows.length === 0 ? (
+        <p style={{ marginTop: 24 }}>
+          {q
+            ? `Aucun produit ne correspond à « ${q} ».`
+            : "Aucun produit à afficher."}
+        </p>
+      ) : (
+        <ClientGrid rows={rows as any[]} />
       )}
 
-      {/* Fenêtre de pages autour de la page courante */}
-      {pages.map((page) => (
-        <a
-          key={page}
-          href={makeHref(page)}
-          aria-current={page === currentPage ? 'page' : undefined}
-          className={`btn px-3 py-1 text-sm ${
-            page === currentPage ? 'btn-primary' : 'btn-ghost'
-          }`}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <nav
+          aria-label="Pagination catalogue"
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            marginTop: 32,
+          }}
         >
-          {page}
-        </a>
-      ))}
-
-      {/* Dernière page + "…" si on est loin de la fin */}
-      {end < totalPages && (
-        <>
-          {end < totalPages - 1 && (
-            <span className="px-1 text-muted-foreground">…</span>
-          )}
           <a
-            href={makeHref(totalPages)}
-            className="btn btn-ghost px-3 py-1 text-sm"
+            href={makePageHref(Math.max(1, currentPage - 1))}
+            className="btn btn-ghost"
+            aria-disabled={currentPage === 1}
           >
-            {totalPages}
+            Précédent
           </a>
-        </>
-      )}
 
-      {/* Suivant */}
-      <a
-        href={makeHref(Math.min(totalPages, currentPage + 1))}
-        aria-disabled={currentPage === totalPages}
-        className={`btn btn-ghost px-3 py-1 text-sm ${
-          currentPage === totalPages ? 'opacity-40 pointer-events-none' : ''
-        }`}
-      >
-        Suivant
-      </a>
-    </nav>
+          {/* Page actuelle */}
+          <span style={{ padding: "6px 12px", borderRadius: 9999, background: "#27272f" }}>
+            {currentPage}
+          </span>
+
+          <span style={{ opacity: 0.7 }}>
+            / {totalPages}
+          </span>
+
+          <a
+            href={makePageHref(Math.min(totalPages, currentPage + 1))}
+            className="btn btn-ghost"
+            aria-disabled={currentPage === totalPages}
+          >
+            Suivant
+          </a>
+        </nav>
+      )}
+    </section>
   );
 }
