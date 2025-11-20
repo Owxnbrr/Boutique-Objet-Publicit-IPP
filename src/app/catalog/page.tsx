@@ -63,7 +63,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
       </p>
 
       {/* Barre de recherche globale */}
-      {/* <form
+      <form
         method="GET"
         style={{ margin: "18px 0 24px", maxWidth: 420 }}
       >
@@ -73,7 +73,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           placeholder="Rechercher un produit…"
           className="input"
         />
-      </form> */}
+      </form>
 
       {/* Résultats */}
       {rows.length === 0 ? (
