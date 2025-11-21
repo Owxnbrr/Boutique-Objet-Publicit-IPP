@@ -11,7 +11,6 @@ type ProductRow = {
   thumbnail_url: string | null;
   base_price: number | null;
   id_anda: string | null;
-  anda_root: string | null;
 };
 
 type ImageRow = {
@@ -46,31 +45,22 @@ export default async function ProductPage({
   const product = productData;
   const minQty = product.min_qty ?? 1;
 
-  // 2) Clé de famille ANDA
-  const familyKey =
-    (product.anda_root && product.anda_root.trim()) ||
-    (product.id_anda && product.id_anda.includes("-")
-      ? product.id_anda.split("-")[0]
-      : product.id_anda) ||
-    product.id;
-
-  // 3) Tous les produits de la même famille (autres couleurs / variantes)
+  // 2) Variantes = tous les produits ayant le même nom
   const { data: siblingsData } = await db
     .from("products")
-    .select("id, name, thumbnail_url, id_anda, anda_root")
-    .eq("anda_root", familyKey)
+    .select("id, name, thumbnail_url, id_anda")
+    .eq("name", product.name)
     .order("id_anda");
 
   const siblings = (siblingsData ?? []) as ProductRow[];
 
-  // On convertit les siblings en "variantes" pour le VariantPicker / Devis
   const variants = siblings.map((p) => ({
     sku: p.id_anda ?? p.id,
     color: null as string | null,
     size: null as string | null,
   }));
 
-  // 4) Images (pour l’instant un set d’images par product_id)
+  // 3) Images (pour l’instant sur le product_id courant)
   const { data: imageData } = await db
     .from("assets")
     .select("url")
@@ -78,7 +68,7 @@ export default async function ProductPage({
 
   const images = (imageData ?? []) as ImageRow[];
 
-  // 5) Prix : on regarde les prix pour tous les SKU de la famille
+  // 4) Prix : on prend les prix pour tous les SKU de la famille
   const priceBySku: Record<string, number> = {};
 
   const variantSkus = variants.map((v) => v.sku).filter(Boolean);
@@ -97,7 +87,7 @@ export default async function ProductPage({
     }
   }
 
-  const defaultSku = variants[0]?.sku;
+  const defaultSku = variants[0]?.sku || product.id_anda || product.id;
   const basePrice =
     (defaultSku && priceBySku[defaultSku]) ||
     Number(product.base_price ?? 0) ||

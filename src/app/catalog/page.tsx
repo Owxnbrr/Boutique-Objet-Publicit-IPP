@@ -23,19 +23,9 @@ type CatalogPageProps = {
   };
 };
 
+// Clé de famille = nom normalisé (minuscules, trim)
 function getFamilyKey(row: CatalogRow): string {
-  // 1) si tu as un anda_root en base -> on le prend
-  if (row.anda_root && row.anda_root.trim() !== "") {
-    return row.anda_root.trim();
-  }
-
-  // 2) sinon on dérive depuis id_anda (AP864057-01 -> AP864057)
-  const idAnda = row.id_anda ?? "";
-  if (idAnda.includes("-")) return idAnda.split("-")[0]!;
-  if (idAnda) return idAnda;
-
-  // 3) ultra fallback : id du produit
-  return row.id;
+  return row.name.trim().toLowerCase();
 }
 
 function dedupeByFamily(rows: CatalogRow[]): CatalogRow[] {
@@ -77,8 +67,11 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   }
 
   const rows = (data ?? []) as CatalogRow[];
+
+  // Dédoublonnage par nom
   const deduped = dedupeByFamily(rows);
 
+  // Pagination
   const totalItems = deduped.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const currentPage = Math.min(
