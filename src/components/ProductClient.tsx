@@ -98,8 +98,9 @@ export default function ProductClient({
                     className="mini-card"
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
+                      alignItems: "center",
+                      gap: 8, 
+                      textDecoration: "none",
                     }}
                   >
                     <div
@@ -107,11 +108,11 @@ export default function ProductClient({
                         borderRadius: 12,
                         border: "1px solid var(--line)",
                         overflow: "hidden",
-                        aspectRatio: "4/3",
-                        width: "100%",
-                        height: 0,
+                        aspectRatio: "1/1",
+                        width: "20%",
+                        height: 100,
                         display:"flex",
-                        
+
                       }}
                     >
                       {/* tu peux remplacer par <Image> si tu veux */}
