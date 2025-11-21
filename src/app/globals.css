@@ -1666,5 +1666,5 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   gap: 1rem; /* espace entre les cartes, optionnel */
 }
 .variant-name{
-  color: var(--brand-700);
+  color: var(--brand-300);
 }

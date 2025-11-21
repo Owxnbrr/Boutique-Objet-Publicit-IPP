@@ -128,7 +128,7 @@ export default function ProductClient({
                     </div>
                   </a>
                 ))}
-            </div>
+            </div>  
           </>
         )}
 
