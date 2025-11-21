@@ -123,7 +123,7 @@ export default function ProductClient({
                       />
                     </div>
                     <div style={{ fontSize: 14 }}>
-                      <strong>{p.name}</strong>
+                      <strong className="variant-name">{p.name}</strong>
                       <div className="muted">{p.id_anda}</div>
                     </div>
                   </a>
