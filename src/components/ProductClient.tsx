@@ -108,6 +108,10 @@ export default function ProductClient({
                         border: "1px solid var(--line)",
                         overflow: "hidden",
                         aspectRatio: "4/3",
+                        width: "100%",
+                        height: 0,
+                        display:"flex",
+                        
                       }}
                     >
                       {/* tu peux remplacer par <Image> si tu veux */}
