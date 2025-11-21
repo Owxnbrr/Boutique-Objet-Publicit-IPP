@@ -76,7 +76,7 @@ export default function VariantPicker({
   return (
     <div className="variant-picker">
       {/* Choix de la variante */}
-      <div className="variant-list">
+      {/* <div className="variant-list">
         {variants.map((v) => {
           const isActive = v.sku === localSku;
           const labelParts = [
@@ -98,7 +98,7 @@ export default function VariantPicker({
             </button>
           );
         })}
-      </div>
+      </div> */}
 
       {/* Prix / quantité / panier */}
       <div className="variant-actions">
