@@ -5,6 +5,15 @@ import Link from "next/link";
 
 const PAGE_SIZE = 48;
 
+type CatalogRow = {
+  id: string;
+  name: string;
+  thumbnail_url: string | null;
+  min_qty: number | null;
+  id_anda: string | null;
+  category: string | null;
+};
+
 type CatalogPageProps = {
   searchParams?: {
     q?: string;
@@ -12,6 +21,27 @@ type CatalogPageProps = {
     category?: string;
   };
 };
+
+function getAndaRoot(row: CatalogRow): string {
+  const idAnda = row.id_anda ?? "";
+  return idAnda.includes("-")
+    ? idAnda.split("-")[0]!
+    : idAnda || row.id;
+}
+
+function dedupeByAndaRoot(rows: CatalogRow[]): CatalogRow[] {
+  const seen = new Set<string>();
+  const result: CatalogRow[] = [];
+
+  for (const row of rows) {
+    const root = getAndaRoot(row);
+    if (seen.has(root)) continue;
+    seen.add(root);
+    result.push(row);
+  }
+
+  return result;
+}
 
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const db = admin();
@@ -25,48 +55,25 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     .select("id, name, thumbnail_url, min_qty, id_anda, category")
     .order("name");
 
-  if (q) {
-    query = query.ilike("name", `%${q}%`);
-  }
-
-  if (categoryFilter) {
-    query = query.eq("category", categoryFilter);
-  }
+  if (q) query = query.ilike("name", `%${q}%`);
+  if (categoryFilter) query = query.eq("category", categoryFilter);
 
   const { data, error } = await query;
-
   if (error) {
     console.error(error);
-    return <p>Impossible de charger le catalogue.</p>;
+    return <p>❌ Impossible de charger le catalogue.</p>;
   }
 
-  const rows = data ?? [];
+  const deduped = dedupeByAndaRoot(data ?? []);
 
-  // 1) Regrouper par "code racine" d'ANDA (avant le premier "-")
-  const byFamily = new Map<string, (typeof rows)[number]>();
-
-  for (const row of rows) {
-    const idAnda = (row as any).id_anda as string | null;
-    const family =
-      idAnda && idAnda.includes("-")
-        ? idAnda.split("-")[0]
-        : idAnda ?? row.id; // fallback
-
-    if (!byFamily.has(family)) {
-      byFamily.set(family, row);
-    }
-  }
-
-  const allFamilies = Array.from(byFamily.values());
-
-  // 2) Pagination après regroupement
-  const totalItems = allFamilies.length;
+  // Pagination après dédoublonnage
+  const totalItems = deduped.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const currentPage = Math.min(Math.max(pageParam || 1, 1), totalPages);
 
   const start = (currentPage - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
-  const pageRows = allFamilies.slice(start, end);
+  const pageRows = deduped.slice(start, end);
 
   return (
     <section>
@@ -75,7 +82,6 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         Produits importés depuis votre flux ANDA
       </p>
 
-      {/* barre de recherche */}
       <form
         className="catalog-search"
         action="/catalog"
@@ -90,9 +96,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         />
       </form>
 
-      <ClientGrid rows={pageRows as any[]} />
+      <ClientGrid rows={pageRows} />
 
-      {/* Pagination simple */}
       <div
         style={{
           display: "flex",
