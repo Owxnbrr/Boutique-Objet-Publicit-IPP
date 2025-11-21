@@ -109,7 +109,7 @@ export default function ProductClient({
                         border: "1px solid var(--line)",
                         overflow: "hidden",
                         aspectRatio: "1/1",
-                        width: "20%",
+                        width: "50%",
                         height: 100,
                         display:"flex",
 
