@@ -716,11 +716,11 @@ GALLERY
   display:grid; 
   gap:12px
 }
-.thumb-row{
+/* .thumb-row{
   display:flex; 
   gap:10px; 
   flex-wrap:wrap
-}
+} */
 .thumb{
   width:72px; 
   height:72px; 
