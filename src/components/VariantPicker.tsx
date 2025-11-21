@@ -1,19 +1,23 @@
 // src/components/VariantPicker.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import AddToCart from "@/components/ui/AddToCart";
-import { getUnitPrice } from "@/lib/cartDb";
+import { useEffect, useState } from "react";
 
-export type Variant = { sku: string; color?: string | null; size?: string | null };
+type Variant = {
+  sku: string;
+  color?: string | null;
+  size?: string | null;
+};
 
 type Props = {
   variants: Variant[];
   productName: string;
   minQty: number;
-  thumbnailUrl?: string | null;
+  thumbnailUrl: string | null;
   baseUnit: number;
   productId: string;
+  selectedSku?: string;
+  onChangeSku?: (sku: string) => void;
 };
 
 export default function VariantPicker({
@@ -23,62 +27,50 @@ export default function VariantPicker({
   thumbnailUrl,
   baseUnit,
   productId,
+  selectedSku,
+  onChangeSku,
 }: Props) {
-  const [sku, setSku] = useState<string | undefined>(variants[0]?.sku);
-  const [unit, setUnit] = useState<number>(baseUnit);
-
-  // Mettre à jour le prix quand la variante change (pour qty = minQty)
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const u = await getUnitPrice(productId, sku ?? null, minQty);
-      if (mounted) setUnit(u || 0);
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [productId, sku, minQty]);
-
-  const eur = useMemo(
-    () => new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }),
-    []
+  // si le parent ne donne rien, on garde un état interne
+  const [localSku, setLocalSku] = useState(
+    selectedSku || variants[0]?.sku || ""
   );
 
-  return (
-    <div style={{ display: "grid", gap: 12 }}>
-      {variants.length > 0 && (
-        <label>
-          Variante
-          <select
-            className="input"
-            value={sku}
-            onChange={(e) => setSku(e.target.value || undefined)}
-            style={{ marginTop: 6 }}
-          >
-            {variants.map((v) => (
-              <option key={v.sku} value={v.sku}>
-                {v.sku} {v.color ? `• ${v.color}` : ""} {v.size ? `• ${v.size}` : ""}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
+  useEffect(() => {
+    if (selectedSku && selectedSku !== localSku) {
+      setLocalSku(selectedSku);
+    }
+  }, [selectedSku]);
 
-      <div className="muted">
-        Prix unitaire (dès {minQty}) : <strong>{eur.format(unit)}</strong>
+  function chooseSku(sku: string) {
+    setLocalSku(sku);
+    onChangeSku?.(sku); // <--- très important
+  }
+
+  // et dans ton rendu, partout où tu avais un onClick sur une variante :
+  // on remplace par chooseSku()
+
+  return (
+    <div className="variant-picker">
+      {/* EXEMPLE : boutons de couleur */}
+      <div className="variant-list">
+        {variants.map((v) => (
+          <button
+            key={v.sku}
+            type="button"
+            onClick={() => chooseSku(v.sku)}
+            className={
+              "variant-pill" + (v.sku === localSku ? " variant-pill--active" : "")
+            }
+          >
+            {v.sku}
+            {v.color ? ` • ${v.color}` : ""}
+            {v.size ? ` • ${v.size}` : ""}
+          </button>
+        ))}
       </div>
 
-      <AddToCart
-        withQtyPicker
-        product={{
-          id: productId,
-          sku,
-          name: productName,
-          unitPrice: unit,
-          image: thumbnailUrl ?? undefined,
-          minQty,
-        }}
-      />
+      {/* … le reste de ta logique d’ajout au panier, en utilisant localSku
+          comme sku sélectionné */}
     </div>
   );
 }
