@@ -1,7 +1,7 @@
 // src/components/QuoteForm.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 type Variant = {
   sku: string;
@@ -14,6 +14,7 @@ type QuoteFormProps = {
   variants: Variant[];
   minQty: number;
   defaultSku?: string;
+  selectedSku?: string; // 👈 ajouté
 };
 
 export default function QuoteForm({
@@ -21,14 +22,18 @@ export default function QuoteForm({
   variants,
   minQty,
   defaultSku,
+  selectedSku,
 }: QuoteFormProps) {
   const [status, setStatus] =
-    useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  const effectiveSku =
+    selectedSku || defaultSku || variants[0]?.sku || "";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus('loading');
+    setStatus("loading");
     setError(null);
 
     const form = e.currentTarget;
@@ -36,22 +41,18 @@ export default function QuoteForm({
 
     const payload = {
       product_id: productId,
-      variant_sku:
-        (fd.get('variant_sku') as string) ||
-        variants[0]?.sku ||
-        defaultSku ||
-        undefined,
-      quantity: Number(fd.get('quantity') || minQty || 1),
-      name: fd.get('name'),
-      email: fd.get('email'),
-      company: fd.get('company'),
-      message: fd.get('message'),
+      variant_sku: effectiveSku,
+      quantity: Number(fd.get("quantity") || minQty || 1),
+      name: fd.get("name"),
+      email: fd.get("email"),
+      company: fd.get("company"),
+      message: fd.get("message"),
     };
 
     try {
-      const res = await fetch('/api/quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -61,11 +62,11 @@ export default function QuoteForm({
           data?.error ||
             "Une erreur s'est produite lors de l'envoi du devis. Réessaie plus tard."
         );
-        setStatus('error');
+        setStatus("error");
         return;
       }
 
-      setStatus('success');
+      setStatus("success");
       setError(null);
       form.reset();
     } catch (err) {
@@ -73,32 +74,23 @@ export default function QuoteForm({
       setError(
         "Impossible de contacter le serveur. Vérifie ta connexion et réessaie."
       );
-      setStatus('error');
+      setStatus("error");
     }
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ display: 'grid', gap: 10 }}
+      style={{ display: "grid", gap: 10 }}
       aria-describedby="quote-status"
     >
-      <label>
-        Variante
-        <select
-          name="variant_sku"
-          defaultValue={defaultSku || variants[0]?.sku}
-          className="input"
-        >
-          {variants.map((v) => (
-            <option key={v.sku} value={v.sku}>
-              {v.sku}
-              {v.color ? ` • ${v.color}` : ''}
-              {v.size ? ` • ${v.size}` : ''}
-            </option>
-          ))}
-        </select>
-      </label>
+      {/* on garde le sku sélectionné en input caché */}
+      <input type="hidden" name="variant_sku" value={effectiveSku} />
+
+      <p className="muted" style={{ fontSize: 14 }}>
+        Variante sélectionnée pour le devis :{" "}
+        <strong>{effectiveSku}</strong>
+      </p>
 
       <label>
         Quantité
@@ -131,13 +123,13 @@ export default function QuoteForm({
         <textarea className="input" name="message" rows={4} />
       </label>
 
-      <div style={{ display: 'flex', gap: 10 }}>
+      <div style={{ display: "flex", gap: 10 }}>
         <button
           className="btn btn-primary"
           type="submit"
-          disabled={status === 'loading'}
+          disabled={status === "loading"}
         >
-          {status === 'loading' ? 'Envoi…' : 'Envoyer la demande'}
+          {status === "loading" ? "Envoi…" : "Envoyer la demande"}
         </button>
         <a className="btn btn-ghost" href="/catalog">
           Retour catalogue
@@ -145,14 +137,13 @@ export default function QuoteForm({
       </div>
 
       <div id="quote-status" style={{ minHeight: 20 }}>
-        {status === 'success' && (
-          <p style={{ color: '#16a34a', fontSize: 14 }}>
-            ✅ Votre demande de devis a bien été envoyée.  
-            Nous vous répondrons dans les plus brefs délais !
+        {status === "success" && (
+          <p style={{ color: "#16a34a", fontSize: 14 }}>
+            ✅ Votre demande de devis a bien été envoyée.
           </p>
         )}
-        {status === 'error' && error && (
-          <p style={{ color: '#dc2626', fontSize: 14 }}>⚠️ {error}</p>
+        {status === "error" && error && (
+          <p style={{ color: "#dc2626", fontSize: 14 }}>⚠️ {error}</p>
         )}
       </div>
     </form>

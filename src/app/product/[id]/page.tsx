@@ -10,12 +10,8 @@ type ProductRow = {
   min_qty: number | null;
   thumbnail_url: string | null;
   base_price: number | null;
-};
-
-type VariantRow = {
-  sku: string;
-  color: string | null;
-  size: string | null;
+  id_anda: string | null;
+  anda_root: string | null;
 };
 
 type ImageRow = {
@@ -35,7 +31,7 @@ export default async function ProductPage({
 }) {
   const db = admin();
 
-  // Produit
+  // 1) Produit courant
   const { data: productData, error: productError } = await db
     .from("products")
     .select("*")
@@ -48,37 +44,52 @@ export default async function ProductPage({
   }
 
   const product = productData;
+  const minQty = product.min_qty ?? 1;
 
-  // Variantes
-  const { data: variantData } = await db
-    .from("variants")
-    .select("sku, color, size")
-    .eq("product_id", params.id);
+  // 2) Clé de famille ANDA
+  const familyKey =
+    (product.anda_root && product.anda_root.trim()) ||
+    (product.id_anda && product.id_anda.includes("-")
+      ? product.id_anda.split("-")[0]
+      : product.id_anda) ||
+    product.id;
 
-  const variants = (variantData ?? []) as VariantRow[];
+  // 3) Tous les produits de la même famille (autres couleurs / variantes)
+  const { data: siblingsData } = await db
+    .from("products")
+    .select("id, name, thumbnail_url, id_anda, anda_root")
+    .eq("anda_root", familyKey)
+    .order("id_anda");
 
-  // Images
+  const siblings = (siblingsData ?? []) as ProductRow[];
+
+  // On convertit les siblings en "variantes" pour le VariantPicker / Devis
+  const variants = siblings.map((p) => ({
+    sku: p.id_anda ?? p.id,
+    color: null as string | null,
+    size: null as string | null,
+  }));
+
+  // 4) Images (pour l’instant un set d’images par product_id)
   const { data: imageData } = await db
     .from("assets")
     .select("url")
-    .eq("product_id", params.id);
+    .eq("product_id", product.id);
 
   const images = (imageData ?? []) as ImageRow[];
 
-  // Prix
+  // 5) Prix : on regarde les prix pour tous les SKU de la famille
   const priceBySku: Record<string, number> = {};
 
-  if (variants.length > 0) {
-    const skus = variants.map((v) => v.sku);
-
+  const variantSkus = variants.map((v) => v.sku).filter(Boolean);
+  if (variantSkus.length > 0) {
     const { data: priceData } = await db
       .from("prices")
       .select("variant_sku, unit_price, qty_break")
-      .in("variant_sku", skus)
+      .in("variant_sku", variantSkus)
       .order("qty_break", { ascending: true });
 
     const rows = (priceData ?? []) as PriceRow[];
-
     for (const row of rows) {
       if (priceBySku[row.variant_sku] == null) {
         priceBySku[row.variant_sku] = Number(row.unit_price) || 0;
@@ -87,7 +98,10 @@ export default async function ProductPage({
   }
 
   const defaultSku = variants[0]?.sku;
-  const minQty = product.min_qty ?? 1;
+  const basePrice =
+    (defaultSku && priceBySku[defaultSku]) ||
+    Number(product.base_price ?? 0) ||
+    0;
 
   return (
     <ProductClient
@@ -97,6 +111,8 @@ export default async function ProductPage({
       priceBySku={priceBySku}
       defaultSku={defaultSku}
       minQty={minQty}
+      basePrice={basePrice}
+      siblings={siblings}
     />
   );
 }
