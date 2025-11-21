@@ -12,6 +12,7 @@ type CatalogRow = {
   min_qty: number | null;
   id_anda: string | null;
   category: string | null;
+  anda_root: string | null;
 };
 
 type CatalogPageProps = {
@@ -22,21 +23,29 @@ type CatalogPageProps = {
   };
 };
 
-function getAndaRoot(row: CatalogRow): string {
+function getFamilyKey(row: CatalogRow): string {
+  // 1) si tu as un anda_root en base -> on le prend
+  if (row.anda_root && row.anda_root.trim() !== "") {
+    return row.anda_root.trim();
+  }
+
+  // 2) sinon on dérive depuis id_anda (AP864057-01 -> AP864057)
   const idAnda = row.id_anda ?? "";
-  return idAnda.includes("-")
-    ? idAnda.split("-")[0]!
-    : idAnda || row.id;
+  if (idAnda.includes("-")) return idAnda.split("-")[0]!;
+  if (idAnda) return idAnda;
+
+  // 3) ultra fallback : id du produit
+  return row.id;
 }
 
-function dedupeByAndaRoot(rows: CatalogRow[]): CatalogRow[] {
+function dedupeByFamily(rows: CatalogRow[]): CatalogRow[] {
   const seen = new Set<string>();
   const result: CatalogRow[] = [];
 
   for (const row of rows) {
-    const root = getAndaRoot(row);
-    if (seen.has(root)) continue;
-    seen.add(root);
+    const key = getFamilyKey(row);
+    if (seen.has(key)) continue;
+    seen.add(key);
     result.push(row);
   }
 
@@ -52,24 +61,30 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   let query = db
     .from("products")
-    .select("id, name, thumbnail_url, min_qty, id_anda, category")
+    .select(
+      "id, name, thumbnail_url, min_qty, id_anda, category, anda_root"
+    )
     .order("name");
 
   if (q) query = query.ilike("name", `%${q}%`);
   if (categoryFilter) query = query.eq("category", categoryFilter);
 
   const { data, error } = await query;
+
   if (error) {
     console.error(error);
-    return <p>❌ Impossible de charger le catalogue.</p>;
+    return <p>Impossible de charger le catalogue.</p>;
   }
 
-  const deduped = dedupeByAndaRoot(data ?? []);
+  const rows = (data ?? []) as CatalogRow[];
+  const deduped = dedupeByFamily(rows);
 
-  // Pagination après dédoublonnage
   const totalItems = deduped.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  const currentPage = Math.min(Math.max(pageParam || 1, 1), totalPages);
+  const currentPage = Math.min(
+    Math.max(pageParam || 1, 1),
+    totalPages
+  );
 
   const start = (currentPage - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
