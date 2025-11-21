@@ -88,7 +88,7 @@ export default function ProductClient({
         {siblings.length > 1 && (
           <>
             <h3 className="h2">Autres variantes</h3>
-            <div className="grid" style={{ marginBottom: 16 }}>
+            <div className="grid-variant" style={{ marginBottom: 16 }}>
               {siblings
                 .filter((p) => p.id !== product.id)
                 .map((p) => (
