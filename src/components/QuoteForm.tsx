@@ -41,8 +41,8 @@ export default function QuoteForm({
     const params = new URLSearchParams();
     fd.forEach((value, key) => params.append(key, String(value)));
 
-    // Champs nécessaires / utiles pour Netlify
-    params.set("form-name", "quote"); // IMPORTANT : doit matcher name="quote"
+    // Champs indispensables pour Netlify Forms
+    params.set("form-name", "quote");      // doit matcher name="quote"
     params.set("product_id", productId);
     params.set("variant_sku", effectiveSku);
 
@@ -54,12 +54,7 @@ export default function QuoteForm({
       });
 
       if (!res.ok) {
-        let msg = "Une erreur s'est produite lors de l'envoi du devis.";
-        try {
-          const txt = await res.text();
-          if (txt) msg = msg; // on garde un message simple
-        } catch {}
-        setError(msg);
+        setError("Une erreur s'est produite lors de l'envoi du devis.");
         setStatus("error");
         return;
       }
@@ -68,7 +63,7 @@ export default function QuoteForm({
       form.reset();
     } catch (err) {
       console.error(err);
-      setError("Impossible de contacter le serveur. Vérifie ta connexion et réessaie.");
+      setError("Impossible de contacter le serveur. Réessaie.");
       setStatus("error");
     }
   }
@@ -83,8 +78,10 @@ export default function QuoteForm({
       style={{ display: "grid", gap: 10 }}
       aria-describedby="quote-status"
     >
-      {/* obligatoire pour Netlify */}
+      {/* requis pour Netlify */}
       <input type="hidden" name="form-name" value="quote" />
+      <input type="hidden" name="product_id" value={productId} />
+      <input type="hidden" name="variant_sku" value={effectiveSku} />
 
       {/* honeypot anti-bot */}
       <p hidden>
@@ -92,12 +89,6 @@ export default function QuoteForm({
           Don’t fill this out: <input name="bot-field" />
         </label>
       </p>
-
-      {/* infos produit */}
-      <input type="hidden" name="product_id" value={productId} />
-      <input type="hidden" name="variant_sku" value={effectiveSku} />
-      {/* si tu ne l'as pas, laisse vide (ou supprime le champ) */}
-      <input type="hidden" name="product_label" value="" />
 
       <p className="muted" style={{ fontSize: 14 }}>
         Variante sélectionnée pour le devis : <strong>{effectiveSku}</strong>
@@ -135,18 +126,13 @@ export default function QuoteForm({
         <textarea className="input" name="message" rows={4} />
       </label>
 
-      <div style={{ display: "flex", gap: 10 }}>
-        <button
-          className="btn btn-primary"
-          type="submit"
-          disabled={status === "loading"}
-        >
-          {status === "loading" ? "Envoi…" : "Envoyer la demande"}
-        </button>
-        <a className="btn btn-ghost" href="/catalog">
-          Retour catalogue
-        </a>
-      </div>
+      <button
+        className="btn btn-primary"
+        type="submit"
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Envoi…" : "Envoyer la demande"}
+      </button>
 
       <div id="quote-status" style={{ minHeight: 20 }}>
         {status === "success" && (
