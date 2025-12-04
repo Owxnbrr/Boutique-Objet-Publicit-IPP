@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <footer className="container" style={{ paddingTop: 24, paddingBottom: 48 }}>
           <hr className="hr" />
           <p className="muted">
-            © {new Date().getFullYear()} Imprimerie du Plateau Picard - Montdidier
+            © {new Date().getFullYear()} IPPCom - Montdidier
           </p>
         </footer>
       </body>
