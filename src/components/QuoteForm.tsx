@@ -47,7 +47,7 @@ export default function QuoteForm({
     params.set("variant_sku", effectiveSku);
 
     try {
-      const res = await fetch("/", {
+      const res = await fetch("/netlify-forms.html", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params.toString(),
@@ -72,6 +72,7 @@ export default function QuoteForm({
     <form
       name="quote"
       method="POST"
+      action="/netlify-forms.html"
       data-netlify="true"
       netlify-honeypot="bot-field"
       onSubmit={handleSubmit}
