@@ -25,16 +25,9 @@ export function ProductCard({ id, name, thumbnail_url, min_qty, from_price }: Pr
   <h3>{name}</h3>
 
   <div className="card-items">
-    <div className="meta">
-      <span className="muted">MOQ {min_qty ?? 1}</span>
-      {from_price
-        ? <span className="price">à partir de {from_price.toFixed(2)}€</span>
-        : <span className="badge">ANDA</span>}
-    </div>
 
     <div className="actions">
       <Link className="btn-product" href={`/product/${id}`}>Voir</Link>
-      <Link className="btn-ghost" href={`/product/${id}#devis`}>Devis</Link>
     </div>
   </div>
 </article>

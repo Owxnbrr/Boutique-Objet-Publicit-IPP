@@ -86,9 +86,6 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   return (
     <section>
       <h1 className="h1">Catalogue</h1>
-      <p className="muted" style={{ marginTop: -6 }}>
-        Produits importés depuis votre flux ANDA
-      </p>
 
       <form
         className="catalog-search"

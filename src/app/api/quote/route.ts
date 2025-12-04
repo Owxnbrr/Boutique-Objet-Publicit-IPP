@@ -87,7 +87,7 @@ export async function POST(req: Request) {
 
       const { error: internalMailError } = await resend.emails.send({
         from: "IPP Customs Devis <onboarding@resend.dev>", // à changer quand tu auras ton propre domaine
-        to: "noah.bucheton27@gmail.com", // 👉 mail interne
+        to: "contact@ipp-imprimerie.fr",
         subject: `Nouvelle demande de devis – ${productLabel}`,
         html: internalHtml,
       });

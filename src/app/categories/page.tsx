@@ -29,9 +29,6 @@ export default async function CategoriesPage() {
     <section className="categories-page">
       <header className="categories-header">
         <h1 className="h1">Catégories</h1>
-        <p className="muted">
-          Parcourez les familles de produits issues de votre flux ANDA.
-        </p>
       </header>
 
       <div className="categories-grid">
