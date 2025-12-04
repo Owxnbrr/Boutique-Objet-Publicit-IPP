@@ -87,7 +87,7 @@ export async function POST(req: Request) {
 
       const { error: internalMailError } = await resend.emails.send({
         from: FROM_EMAIL,
-        to: ["contact@ipp-imprimerie.fr", "noah.bucheton27@gmail.com"],
+        to: [INTERNAL_TO, "noah.bucheton27@gmail.com"],
         replyTo: email as string, // ✅ ton patron répond direct au client
         subject: `Nouvelle demande de devis – ${productLabel}`,
         html: internalHtml,
