@@ -4,12 +4,9 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 
-const INTERNAL_TO =
-  process.env.QUOTES_TO_EMAIL || "contact@ipp-imprimerie.fr";
-
+const INTERNAL_TO = process.env.QUOTES_TO_EMAIL || "contact@ipp-imprimerie.fr";
 const FROM_EMAIL =
   process.env.QUOTES_FROM_EMAIL || "IPP Imprimerie <contact@ipp-imprimerie.fr>";
-
 
 export async function POST(req: Request) {
   try {
@@ -18,16 +15,17 @@ export async function POST(req: Request) {
     const { product_id, variant_sku, quantity, name, email, company, message } =
       body ?? {};
 
-    if (!product_id || !quantity || !name || !email) {
+    const qty = Number(quantity);
+
+    if (!product_id || !Number.isFinite(qty) || qty <= 0 || !name || !email) {
       return NextResponse.json(
-        { error: "Champs obligatoires manquants." },
+        { error: "Champs obligatoires manquants (ou quantité invalide)." },
         { status: 400 }
       );
     }
 
     const db = admin();
 
-    // 1) On récupère le produit pour enrichir le mail
     const { data: product } = await db
       .from("products")
       .select("id, name, id_anda")
@@ -38,13 +36,12 @@ export async function POST(req: Request) {
       ? `${product.name}${product.id_anda ? ` (${product.id_anda})` : ""}`
       : `Produit #${product_id}`;
 
-    // 2) On enregistre la demande dans Supabase (table quotes)
     const { data: quote, error: dbError } = await db
       .from("quotes")
       .insert({
         product_id,
         variant_sku,
-        quantity,
+        quantity: qty,
         name,
         email,
         company,
@@ -61,74 +58,74 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3) ENVOI DES EMAILS VIA RESEND
     if (!process.env.RESEND_API_KEY) {
-      console.warn(
-        "[/api/quote] RESEND_API_KEY manquant, les emails ne seront pas envoyés."
+      return NextResponse.json(
+        { error: "RESEND_API_KEY manquant." },
+        { status: 500 }
       );
-    } else {
-      // 3a) Mail interne (vers ton patron)
-      const internalHtml = `
-        <h1>Nouvelle demande de devis</h1>
-        <p><strong>Produit :</strong> ${productLabel}</p>
-        <p><strong>Variante :</strong> ${variant_sku || "-"}</p>
-        <p><strong>Quantité :</strong> ${quantity}</p>
-        <hr/>
-        <p><strong>Nom :</strong> ${name}</p>
-        <p><strong>Email :</strong> ${email}</p>
-        <p><strong>Société :</strong> ${company || "-"}</p>
-        <h2>Message</h2>
-        <p>${(message || "(aucun message)")
-          .toString()
-          .replace(/\n/g, "<br/>")}</p>
-        <hr/>
-        <p><small>Quote ID: ${quote?.id ?? "?"}</small></p>
-      `;
+    }
 
-      const { error: internalMailError } = await resend.emails.send({
-        from: FROM_EMAIL,
-        to: [INTERNAL_TO, "noah.bucheton27@gmail.com"],
-        replyTo: email as string, // ✅ ton patron répond direct au client
-        subject: `Nouvelle demande de devis – ${productLabel}`,
-        html: internalHtml,
-      });
+    const internalHtml = `
+      <h1>Nouvelle demande de devis</h1>
+      <p><strong>Produit :</strong> ${productLabel}</p>
+      <p><strong>Variante :</strong> ${variant_sku || "-"}</p>
+      <p><strong>Quantité :</strong> ${qty}</p>
+      <hr/>
+      <p><strong>Nom :</strong> ${name}</p>
+      <p><strong>Email :</strong> ${email}</p>
+      <p><strong>Société :</strong> ${company || "-"}</p>
+      <h2>Message</h2>
+      <p>${(message || "(aucun message)").toString().replace(/\n/g, "<br/>")}</p>
+      <hr/>
+      <p><small>Quote ID: ${quote?.id ?? "?"}</small></p>
+    `;
 
-      if (internalMailError) {
-        console.error("Erreur envoi mail interne:", internalMailError);
+    const subjectInternal = `[DEVIS] ${productLabel} | Qté:${qty} | ${name} | #${quote.id}`;
+
+    const { error: internalMailError } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [INTERNAL_TO, "noah.bucheton27@gmail.com"], // ✅ test double
+      replyTo: email as string,
+      subject: subjectInternal,
+      html: internalHtml,
+    });
+
+    if (internalMailError) {
+      console.error("Erreur envoi mail interne:", internalMailError);
+      return NextResponse.json(
+        { error: "Erreur Resend (mail interne)." },
+        { status: 502 }
+      );
+    }
+
+    const clientHtml = `
+      <h1>Votre demande de devis a bien été reçue</h1>
+      <p>Bonjour ${name},</p>
+      <p>Merci pour votre demande de devis pour : <strong>${productLabel}</strong>
+      (variante : ${variant_sku || "non précisée"}).</p>
+      <p><strong>Quantité :</strong> ${qty}</p>
+      ${company ? `<p><strong>Société :</strong> ${company}</p>` : ""}
+      ${
+        message
+          ? `<h2>Votre message</h2><p>${message
+              .toString()
+              .replace(/\n/g, "<br/>")}</p>`
+          : ""
       }
+      <p>Nous vous répondrons dans les plus brefs délais.</p>
+      <p>Cordialement,<br/><strong>IPP Imprimerie</strong></p>
+    `;
 
-      // 3b) Mail de confirmation au client
-      const clientHtml = `
-        <h1>Votre demande de devis a bien été reçue</h1>
-        <p>Bonjour ${name},</p>
-        <p>
-          Merci pour votre demande de devis pour :
-          <strong>${productLabel}</strong>
-          (variante : ${variant_sku || "non précisée"}).
-        </p>
-        <p><strong>Quantité :</strong> ${quantity}</p>
-        ${company ? `<p><strong>Société :</strong> ${company}</p>` : ""}
-        ${
-          message
-            ? `<h2>Votre message</h2><p>${message
-                .toString()
-                .replace(/\n/g, "<br/>")}</p>`
-            : ""
-        }
-        <p>Nous vous répondrons dans les plus brefs délais.</p>
-        <p>Cordialement,<br/><strong>IPP Imprimerie</strong></p>
-      `;
+    const { error: clientMailError } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email as string,
+      subject: `Confirmation de votre demande de devis – ${productLabel}`,
+      html: clientHtml,
+    });
 
-      const { error: clientMailError } = await resend.emails.send({
-        from: FROM_EMAIL,
-        to: email as string,
-        subject: `Confirmation de votre demande de devis – ${productLabel}`,
-        html: clientHtml,
-      });
-
-      if (clientMailError) {
-        console.error("Erreur envoi mail client:", clientMailError);
-      }
+    if (clientMailError) {
+      console.error("Erreur envoi mail client:", clientMailError);
+      // Ici tu peux choisir de ne pas bloquer le retour si seul le mail client échoue
     }
 
     return NextResponse.json({ ok: true, quote_id: quote.id });
