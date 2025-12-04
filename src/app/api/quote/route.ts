@@ -4,9 +4,17 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 
+// Destinataire interne (patron)
 const INTERNAL_TO = process.env.QUOTES_TO_EMAIL || "contact@ipp-imprimerie.fr";
-const FROM_EMAIL =
-  process.env.QUOTES_FROM_EMAIL || "IPP Imprimerie <contact@ipp-imprimerie.fr>";
+
+/**
+ * IMPORTANT :
+ * Tant que ton domaine Resend n'est pas "Verified" côté Sending,
+ * garde un FROM Resend (onboarding@resend.dev) pour éviter les blocages.
+ * Quand tout est Verified côté Resend, tu pourras passer à :
+ * "IPP Imprimerie <contact@ipp-imprimerie.fr>"
+ */
+const FROM_EMAIL = "Devis IPP <onboarding@resend.dev>";
 
 export async function POST(req: Request) {
   try {
@@ -26,6 +34,7 @@ export async function POST(req: Request) {
 
     const db = admin();
 
+    // 1) Récupérer le produit pour enrichir le mail
     const { data: product } = await db
       .from("products")
       .select("id, name, id_anda")
@@ -36,6 +45,7 @@ export async function POST(req: Request) {
       ? `${product.name}${product.id_anda ? ` (${product.id_anda})` : ""}`
       : `Produit #${product_id}`;
 
+    // 2) Enregistrer la demande dans Supabase (table quotes)
     const { data: quote, error: dbError } = await db
       .from("quotes")
       .insert({
@@ -58,6 +68,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // 3) Envoi via Resend
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
         { error: "RESEND_API_KEY manquant." },
@@ -65,6 +76,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // 3a) Mail interne
     const internalHtml = `
       <h1>Nouvelle demande de devis</h1>
       <p><strong>Produit :</strong> ${productLabel}</p>
@@ -84,8 +96,8 @@ export async function POST(req: Request) {
 
     const { error: internalMailError } = await resend.emails.send({
       from: FROM_EMAIL,
-      to: [INTERNAL_TO, "noah.bucheton27@gmail.com"], // ✅ test double
-      replyTo: email as string,
+      to: [INTERNAL_TO, "noah.bucheton27@gmail.com"], // test double destinataire
+      replyTo: email as string, // ✅ ICI: replyTo doit être string/string[]
       subject: subjectInternal,
       html: internalHtml,
     });
@@ -93,16 +105,20 @@ export async function POST(req: Request) {
     if (internalMailError) {
       console.error("Erreur envoi mail interne:", internalMailError);
       return NextResponse.json(
-        { error: "Erreur Resend (mail interne)." },
+        { error: "Erreur Resend (mail interne).", details: internalMailError },
         { status: 502 }
       );
     }
 
+    // 3b) Mail confirmation client
     const clientHtml = `
       <h1>Votre demande de devis a bien été reçue</h1>
       <p>Bonjour ${name},</p>
-      <p>Merci pour votre demande de devis pour : <strong>${productLabel}</strong>
-      (variante : ${variant_sku || "non précisée"}).</p>
+      <p>
+        Merci pour votre demande de devis pour :
+        <strong>${productLabel}</strong>
+        (variante : ${variant_sku || "non précisée"}).
+      </p>
       <p><strong>Quantité :</strong> ${qty}</p>
       ${company ? `<p><strong>Société :</strong> ${company}</p>` : ""}
       ${
@@ -125,7 +141,7 @@ export async function POST(req: Request) {
 
     if (clientMailError) {
       console.error("Erreur envoi mail client:", clientMailError);
-      // Ici tu peux choisir de ne pas bloquer le retour si seul le mail client échoue
+      // on ne bloque pas forcément si seul le mail client échoue
     }
 
     return NextResponse.json({ ok: true, quote_id: quote.id });
