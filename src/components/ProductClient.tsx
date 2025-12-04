@@ -136,11 +136,13 @@ export default function ProductClient({
 
         <QuoteForm
           productId={product.id}
+          productLabel={product.name}
           variants={variants}
           minQty={minQty}
           defaultSku={selectedSku}
           selectedSku={selectedSku}
         />
+
       </aside>
     </section>
   );

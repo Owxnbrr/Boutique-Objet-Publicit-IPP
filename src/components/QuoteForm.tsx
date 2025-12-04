@@ -10,6 +10,7 @@ type Variant = {
 
 type QuoteFormProps = {
   productId: string;
+  productLabel: string;
   variants: Variant[];
   minQty: number;
   defaultSku?: string;
@@ -18,6 +19,7 @@ type QuoteFormProps = {
 
 export default function QuoteForm({
   productId,
+  productLabel,
   variants,
   minQty,
   defaultSku,
@@ -37,14 +39,14 @@ export default function QuoteForm({
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    // FormData -> x-www-form-urlencoded
     const params = new URLSearchParams();
     fd.forEach((value, key) => params.append(key, String(value)));
 
-    // Champs indispensables pour Netlify Forms
-    params.set("form-name", "quote");      // doit matcher name="quote"
+    // Netlify Forms
+    params.set("form-name", "quote");
     params.set("product_id", productId);
     params.set("variant_sku", effectiveSku);
+    params.set("product_label", productLabel);
 
     try {
       const res = await fetch("/netlify-forms.html", {
@@ -81,15 +83,18 @@ export default function QuoteForm({
     >
       {/* requis pour Netlify */}
       <input type="hidden" name="form-name" value="quote" />
-      <input type="hidden" name="product_id" value={productId} />
-      <input type="hidden" name="variant_sku" value={effectiveSku} />
 
-      {/* honeypot anti-bot */}
+      {/* honeypot */}
       <p hidden>
         <label>
           Don’t fill this out: <input name="bot-field" />
         </label>
       </p>
+
+      {/* infos produit */}
+      <input type="hidden" name="product_id" value={productId} />
+      <input type="hidden" name="variant_sku" value={effectiveSku} />
+      <input type="hidden" name="product_label" value={productLabel} />
 
       <p className="muted" style={{ fontSize: 14 }}>
         Variante sélectionnée pour le devis : <strong>{effectiveSku}</strong>
