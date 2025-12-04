@@ -1,4 +1,3 @@
-// src/components/QuoteForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -14,7 +13,7 @@ type QuoteFormProps = {
   variants: Variant[];
   minQty: number;
   defaultSku?: string;
-  selectedSku?: string; // 👈 ajouté
+  selectedSku?: string;
 };
 
 export default function QuoteForm({
@@ -28,8 +27,7 @@ export default function QuoteForm({
     useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const effectiveSku =
-    selectedSku || defaultSku || variants[0]?.sku || "";
+  const effectiveSku = selectedSku || defaultSku || variants[0]?.sku || "";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,57 +37,70 @@ export default function QuoteForm({
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    const payload = {
-      product_id: productId,
-      variant_sku: effectiveSku,
-      quantity: Number(fd.get("quantity") || minQty || 1),
-      name: fd.get("name"),
-      email: fd.get("email"),
-      company: fd.get("company"),
-      message: fd.get("message"),
-    };
+    // FormData -> x-www-form-urlencoded
+    const params = new URLSearchParams();
+    fd.forEach((value, key) => params.append(key, String(value)));
+
+    // Champs nécessaires / utiles pour Netlify
+    params.set("form-name", "quote"); // IMPORTANT : doit matcher name="quote"
+    params.set("product_id", productId);
+    params.set("variant_sku", effectiveSku);
 
     try {
-      const res = await fetch("/api/quote", {
+      const res = await fetch("/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(
-          data?.error ||
-            "Une erreur s'est produite lors de l'envoi du devis. Réessaie plus tard."
-        );
+        let msg = "Une erreur s'est produite lors de l'envoi du devis.";
+        try {
+          const txt = await res.text();
+          if (txt) msg = msg; // on garde un message simple
+        } catch {}
+        setError(msg);
         setStatus("error");
         return;
       }
 
       setStatus("success");
-      setError(null);
       form.reset();
     } catch (err) {
       console.error(err);
-      setError(
-        "Impossible de contacter le serveur. Vérifie ta connexion et réessaie."
-      );
+      setError("Impossible de contacter le serveur. Vérifie ta connexion et réessaie.");
       setStatus("error");
     }
   }
 
   return (
     <form
+      name="quote"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
       onSubmit={handleSubmit}
       style={{ display: "grid", gap: 10 }}
       aria-describedby="quote-status"
     >
-      {/* on garde le sku sélectionné en input caché */}
+      {/* obligatoire pour Netlify */}
+      <input type="hidden" name="form-name" value="quote" />
+
+      {/* honeypot anti-bot */}
+      <p hidden>
+        <label>
+          Don’t fill this out: <input name="bot-field" />
+        </label>
+      </p>
+
+      {/* infos produit */}
+      <input type="hidden" name="product_id" value={productId} />
       <input type="hidden" name="variant_sku" value={effectiveSku} />
+      {/* si tu ne l'as pas, laisse vide (ou supprime le champ) */}
+      <input type="hidden" name="product_label" value="" />
 
       <p className="muted" style={{ fontSize: 14 }}>
-        Variante sélectionnée pour le devis :{" "}
-        <strong>{effectiveSku}</strong>
+        Variante sélectionnée pour le devis : <strong>{effectiveSku}</strong>
       </p>
 
       <label>
@@ -100,6 +111,7 @@ export default function QuoteForm({
           type="number"
           min={minQty}
           defaultValue={minQty}
+          required
         />
       </label>
 
