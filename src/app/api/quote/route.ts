@@ -4,13 +4,12 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 
-// ✅ Adresse qui reçoit les demandes de devis (ton patron)
-const INTERNAL_TO = process.env.QUOTE_TO_EMAIL || "contact@ipp-imprimerie.fr";
+const INTERNAL_TO =
+  process.env.QUOTES_TO_EMAIL || "contact@ipp-imprimerie.fr";
 
-// ✅ Expéditeur (tu peux laisser contact@... si c’est l’adresse principale)
-// Si un jour ton domaine est totalement OK partout, tu pourras mettre devis@...
 const FROM_EMAIL =
-  process.env.QUOTE_FROM_EMAIL || "IPP Imprimerie <contact@ipp-imprimerie.fr>";
+  process.env.QUOTES_FROM_EMAIL || "IPP Imprimerie <contact@ipp-imprimerie.fr>";
+
 
 export async function POST(req: Request) {
   try {
