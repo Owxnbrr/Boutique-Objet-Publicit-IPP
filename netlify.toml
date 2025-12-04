@@ -1,0 +1,12 @@
+[build]
+  command = "next build"
+  publish = ".next"
+  functions = ".netlify/functions"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# 👇 ceci force Netlify à scanner les forms dans le dossier .next/server/app
+[[plugins.inputs]]
+  # nécessaire pour détecter les formulaires de l’App Router
+  includeAppRouterPages = true
