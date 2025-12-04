@@ -4,19 +4,20 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
 
+// ✅ Adresse qui reçoit les demandes de devis (ton patron)
+const INTERNAL_TO = process.env.QUOTE_TO_EMAIL || "contact@ipp-imprimerie.fr";
+
+// ✅ Expéditeur (tu peux laisser contact@... si c’est l’adresse principale)
+// Si un jour ton domaine est totalement OK partout, tu pourras mettre devis@...
+const FROM_EMAIL =
+  process.env.QUOTE_FROM_EMAIL || "IPP Imprimerie <contact@ipp-imprimerie.fr>";
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const {
-      product_id,
-      variant_sku,
-      quantity,
-      name,
-      email,
-      company,
-      message,
-    } = body ?? {};
+    const { product_id, variant_sku, quantity, name, email, company, message } =
+      body ?? {};
 
     if (!product_id || !quantity || !name || !email) {
       return NextResponse.json(
@@ -67,7 +68,7 @@ export async function POST(req: Request) {
         "[/api/quote] RESEND_API_KEY manquant, les emails ne seront pas envoyés."
       );
     } else {
-      // 3a) Mail interne (vers toi)
+      // 3a) Mail interne (vers ton patron)
       const internalHtml = `
         <h1>Nouvelle demande de devis</h1>
         <p><strong>Produit :</strong> ${productLabel}</p>
@@ -86,8 +87,9 @@ export async function POST(req: Request) {
       `;
 
       const { error: internalMailError } = await resend.emails.send({
-        from: "IPP Customs Devis <onboarding@resend.dev>", // à changer quand tu auras ton propre domaine
-        to: "contact@ipp-imprimerie.fr",
+        from: FROM_EMAIL,
+        to: INTERNAL_TO,
+        replyTo: email as string, // ✅ ton patron répond direct au client
         subject: `Nouvelle demande de devis – ${productLabel}`,
         html: internalHtml,
       });
@@ -106,11 +108,7 @@ export async function POST(req: Request) {
           (variante : ${variant_sku || "non précisée"}).
         </p>
         <p><strong>Quantité :</strong> ${quantity}</p>
-        ${
-          company
-            ? `<p><strong>Société :</strong> ${company}</p>`
-            : ""
-        }
+        ${company ? `<p><strong>Société :</strong> ${company}</p>` : ""}
         ${
           message
             ? `<h2>Votre message</h2><p>${message
@@ -118,15 +116,13 @@ export async function POST(req: Request) {
                 .replace(/\n/g, "<br/>")}</p>`
             : ""
         }
-        <p>
-          Nous vous répondrons dans les plus brefs délais.
-        </p>
-        <p>Cordialement,<br/><strong>IPP Customs</strong></p>
+        <p>Nous vous répondrons dans les plus brefs délais.</p>
+        <p>Cordialement,<br/><strong>IPP Imprimerie</strong></p>
       `;
 
       const { error: clientMailError } = await resend.emails.send({
-        from: "IPP Customs Devis <onboarding@resend.dev>",
-        to: email as string, // 👉 mail du client
+        from: FROM_EMAIL,
+        to: email as string,
         subject: `Confirmation de votre demande de devis – ${productLabel}`,
         html: clientHtml,
       });
