@@ -1668,3 +1668,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 .variant-name{
   color: var(--brand-300);
 }
+
+.btn-bento{
+  width: 10rem;
+}
