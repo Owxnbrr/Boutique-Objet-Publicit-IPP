@@ -58,7 +58,6 @@ export default async function Bento() {
           <h3 className={large ? 'bento-title-lg' : 'bento-title'}>{p?.name}</h3>
           <div style={{ display: 'flex', gap: 8 }}>
             <Link className="btn btn-primary" href={`/product/${p?.id}`}>Voir</Link>
-            <Link className="btn btn-ghost" href={`/product/${p?.id}#devis`}>Devis</Link>
           </div>
         </div>
       </article>
