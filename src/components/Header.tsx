@@ -82,10 +82,7 @@ export default function Header({ user, logout, CartBadge }: Props) {
                 </>
               ) : (
                 <>
-                  <a className="btn btn-primary" href="#devis" onClick={() => setOpen(false)}>
-                    Demander un devis
-                  </a>
-                  <Link className="btn btn-outline" href="/login" onClick={() => setOpen(false)}>
+                  <Link className="btn btn-primary" href="/login" onClick={() => setOpen(false)}>
                     Se connecter
                   </Link>
                 </>
