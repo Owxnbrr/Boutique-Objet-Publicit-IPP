@@ -70,9 +70,7 @@ export default function Home() {
           <div className="h2">Un projet ? Parlons-en.</div>
           <p className="muted">Donnez-nous une quantité, une deadline et une idée — on s’occupe du reste.</p>
           <div style={{ display:'flex', gap:10 }}>
-            <a className="btn btn-primary" href="/catalog">Parcourir le catalogue</a>
-            <a className="btn btn-ghost" href="/product/DEMO">Demander un devis</a>
-            
+            <a className="btn btn-primary" href="/catalog">Parcourir le catalogue</a>            
           </div>
         </div>
       </section>
