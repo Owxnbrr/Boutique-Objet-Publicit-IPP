@@ -42,7 +42,6 @@ export default function QuoteForm({
     const params = new URLSearchParams();
     fd.forEach((value, key) => params.append(key, String(value)));
 
-    // Netlify Forms
     params.set("form-name", "quote");
     params.set("product_id", productId);
     params.set("variant_sku", effectiveSku);

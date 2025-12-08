@@ -37,7 +37,6 @@ export default function CartClient() {
     const min = minQty ?? 1;
     const safeQty = clamp(nextQty, min);
 
-    // Mise à jour immédiate du panier local
     setQtyLocal(productId, sku, safeQty);
 
     const {
@@ -69,7 +68,6 @@ export default function CartClient() {
     window.location.reload();
   }
 
-  // Montants en euros (uniquement pour l’affichage)
   const subTotal = items.reduce(
     (s, it) => s + (Number(it.unitPrice) || 0) * it.qty,
     0
@@ -98,7 +96,7 @@ export default function CartClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items,
-          currency: "EUR", // le backend recalcule les montants en centimes
+          currency: "EUR",
         }),
       });
 

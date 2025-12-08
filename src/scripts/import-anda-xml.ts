@@ -34,7 +34,6 @@ async function run() {
 
   const json = await parseStringPromise(xml, { explicitArray: false });
 
-  // ---- ICI on s'adapte au vrai XML ANDA : <products><product> ----
   let productsNode = json?.products?.product ?? json?.catalog?.product ?? [];
 
   let list: any[] = [];
@@ -54,18 +53,14 @@ async function run() {
 
   for (const p of list) {
     try {
-      // ----- Mapping des champs ANDA -> notre modèle -----
 
-      // ID produit ANDA
       const idAnda = p?.itemNumber ?? p?.rootItemNumber ?? p?.$?.id ?? p?.id;
 
-      // Nom du produit : on prend <name>, sinon <designName>
       const name =
         typeof p?.name === "string"
           ? p.name
           : p?.name?._ ?? p?.designName ?? "";
 
-      // Catégorie : on tente d'en déduire une depuis collections ou topics
       const category =
         p?.collections?.collections?.collection?.name ??
         (Array.isArray(p?.productTheme?.topics?.topic)
@@ -73,27 +68,21 @@ async function run() {
           : p?.productTheme?.topics?.topic?.name) ??
         null;
 
-      // Marque
       const brand = p?.brandName ?? p?.brand ?? null;
 
-      // Quantité mini (minimumOrderQuantity)
       const minQty = Number(
         p?.minimumOrderQuantity ?? p?.min_qty ?? 1,
       );
 
-      // Délai (s'il existe, sinon 0)
       const leadTime = Number(
         p?.leadTimeInDays ?? p?.lead_time?.$?.days ?? p?.lead_time ?? 0,
       );
 
-      // Images : on prend <images><image> + <primaryImage> en secours
       const imagesRaw = arr(p?.images?.image ?? p?.primaryImage).filter(
         Boolean,
       );
       const thumbnail = imagesRaw[0] ?? null;
 
-      // Prix : pour l'instant on n'a pas encore regardé la structure de prix
-      // On mettra à jour plus tard si besoin.
       const basePrice = Number(
         p?.basePrice ?? p?.price?._ ?? p?.price ?? 0,
       ) || 0;
@@ -105,7 +94,6 @@ async function run() {
         continue;
       }
 
-      // ----- Upsert du produit -----
       const { data: prod, error: pe } = await db
         .from("products")
         .upsert(
@@ -132,7 +120,6 @@ async function run() {
 
       const productId = prod.id;
 
-      // ----- Assets (images supplémentaires) -----
       if (imagesRaw.length > 0) {
         await db.from("assets").delete().eq("product_id", productId);
         const rows = imagesRaw.map((url: string) => ({
@@ -144,9 +131,6 @@ async function run() {
         if (ae) console.error("assets insert", ae);
       }
 
-      // ----- Variants -----
-      // Le flux ANDA que tu m'as montré n'a pas de <variants>,
-      // donc on crée au moins UNE variante par produit avec le SKU = itemNumber.
       let variantsRaw: any[] = arr(p?.variants?.variant);
 
       if (variantsRaw.length === 0) {
@@ -174,7 +158,6 @@ async function run() {
         if (ve) console.error("variant upsert", ve);
       }
 
-      // ----- Prix de base lié à la première variante -----
       const firstSku =
         variantsRaw[0]?.$?.sku ?? variantsRaw[0]?.sku ?? idAnda;
       if (firstSku && basePrice > 0) {

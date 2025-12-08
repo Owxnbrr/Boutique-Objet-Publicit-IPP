@@ -15,7 +15,6 @@ export function resolveImageSrc(input: unknown): string {
   return "";
 }
 
-/** Retourne une URL exploitable pour <Image/> ou un placeholder local. */
 export function firstImage(images?: string[] | string | null): string {
   const url = resolveImageSrc(images ?? "");
   return url || "/placeholder.jpg";

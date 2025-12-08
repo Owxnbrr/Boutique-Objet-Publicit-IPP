@@ -30,7 +30,6 @@ export default async function ProductPage({
 }) {
   const db = admin();
 
-  // 1) Produit courant
   const { data: productData, error: productError } = await db
     .from("products")
     .select("*")
@@ -45,7 +44,6 @@ export default async function ProductPage({
   const product = productData;
   const minQty = product.min_qty ?? 1;
 
-  // 2) Variantes = tous les produits ayant le même nom
   const { data: siblingsData } = await db
     .from("products")
     .select("id, name, thumbnail_url, id_anda")
@@ -60,7 +58,6 @@ export default async function ProductPage({
     size: null as string | null,
   }));
 
-  // 3) Images (pour l’instant sur le product_id courant)
   const { data: imageData } = await db
     .from("assets")
     .select("url")
@@ -68,7 +65,6 @@ export default async function ProductPage({
 
   const images = (imageData ?? []) as ImageRow[];
 
-  // 4) Prix : on prend les prix pour tous les SKU de la famille
   const priceBySku: Record<string, number> = {};
 
   const variantSkus = variants.map((v) => v.sku).filter(Boolean);

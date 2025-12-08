@@ -11,10 +11,8 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
   const [mode, setMode] = useState<Mode>(initial);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Login state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // Register state
   const [name, setName] = useState("");
   const [remail, setRemail] = useState("");
   const [rpass, setRpass] = useState("");
@@ -32,7 +30,6 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
     setMode((m) => (m === "login" ? "register" : "login"));
   }
 
-  // ripple helper
   function makeRipple(e: React.MouseEvent<HTMLButtonElement>) {
     const target = e.currentTarget;
     const rect = target.getBoundingClientRect();
@@ -97,7 +94,6 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
       password: rpass,
       options: {
         data: { full_name: name.trim() },
-        // emailRedirectTo: `${location.origin}/auth/callback`,
       },
     });
     setBusy(false);

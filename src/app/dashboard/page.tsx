@@ -122,7 +122,7 @@ export default function ClientDashboardPage() {
         const byDay = new Map<string, number>();
         list.forEach((o: any) => {
           const k = dmy(o.created_at);
-          byDay.set(k, (byDay.get(k) || 0) + Number(o.total || 0)); // total en CENTIMES
+          byDay.set(k, (byDay.get(k) || 0) + Number(o.total || 0)); 
         });
         const days: { date: string; total: number }[] = [];
         for (let i = 30; i >= 0; i--) {

@@ -10,7 +10,6 @@ export default function SupabaseListener() {
   useEffect(() => {
     const { data: { subscription } } =
       supabase.auth.onAuthStateChange(() => {
-        // force la MAJ des cookies côté app/middleware
         router.refresh();
       });
     return () => subscription.unsubscribe();

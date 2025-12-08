@@ -15,9 +15,9 @@ type Props = {
   productName: string;
   minQty: number;
   thumbnailUrl: string | null;
-  baseUnit: number;      // prix unitaire de la variante sélectionnée
+  baseUnit: number;      
   productId: string;
-  selectedSku?: string;  // sku piloté par le parent (ProductClient)
+  selectedSku?: string; 
   onChangeSku?: (sku: string) => void;
 };
 
@@ -31,21 +31,18 @@ export default function VariantPicker({
   selectedSku,
   onChangeSku,
 }: Props) {
-  // ⚠️ API Zustand existante : s.add (comme dans AddToCart.tsx)
   const add = useCart((s) => s.add);
 
   const initialSku = selectedSku || variants[0]?.sku || "";
   const [localSku, setLocalSku] = useState<string>(initialSku);
   const [quantity, setQuantity] = useState<number>(minQty);
 
-  // Quand le parent change le sku (ProductClient)
   useEffect(() => {
     if (selectedSku && selectedSku !== localSku) {
       setLocalSku(selectedSku);
     }
   }, [selectedSku, localSku]);
 
-  // Si la MOQ change, on réajuste la quantité
   useEffect(() => {
     setQuantity(minQty);
   }, [minQty]);
@@ -58,7 +55,6 @@ export default function VariantPicker({
   function handleAddToCart() {
     if (!localSku) return;
 
-    // On suit exactement le même shape que dans src/components/ui/AddToCart.tsx
     add({
       id: productId,
       sku: localSku,
@@ -75,32 +71,6 @@ export default function VariantPicker({
 
   return (
     <div className="variant-picker">
-      {/* Choix de la variante */}
-      {/* <div className="variant-list">
-        {variants.map((v) => {
-          const isActive = v.sku === localSku;
-          const labelParts = [
-            v.color ?? undefined,
-            v.size ?? undefined,
-          ].filter(Boolean);
-          const label = labelParts.length ? labelParts.join(" • ") : v.sku;
-
-          return (
-            <button
-              key={v.sku}
-              type="button"
-              onClick={() => chooseSku(v.sku)}
-              className={
-                "variant-pill" + (isActive ? " variant-pill--active" : "")
-              }
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div> */}
-
-      {/* Prix / quantité / panier */}
       <div className="variant-actions">
         <div className="price-line">
           {baseUnit > 0 ? (

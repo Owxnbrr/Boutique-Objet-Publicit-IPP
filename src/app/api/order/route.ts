@@ -9,10 +9,10 @@ export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 type CartItem = {
-  id: string;            // = product_id
+  id: string;           
   sku?: string | null;
   name: string;
-  unitPrice: number;     // EN EUROS côté client
+  unitPrice: number;    
   qty: number;
   image?: string | null;
 };
@@ -25,7 +25,6 @@ const stripe = new Stripe(stripeKey);
 
 export async function POST(req: Request) {
   try {
-    // Cookies + client Supabase
     const cookieStore = cookies();
     
     const supabase = createRouteHandlerClient(
@@ -54,10 +53,9 @@ export async function POST(req: Request) {
       return new Response("Empty cart", { status: 400 });
     }
 
-    // ✅ On convertit les prix en centimes pour la base + Stripe
     const items = rawItems.map((it) => {
       const unitEur = Number(it.unitPrice) || 0;
-      const unitCents = Math.round(unitEur * 100); // 72.5€ → 7250
+      const unitCents = Math.round(unitEur * 100);
       const qty = Number.isFinite(it.qty) && it.qty > 0 ? it.qty : 1;
 
       return {
@@ -67,24 +65,22 @@ export async function POST(req: Request) {
       };
     });
 
-    // --- 1) Recalcul serveur des montants (en CENTIMES) ---
     const subTotal = items.reduce(
       (s, it) => s + it.unitCents * it.qty,
       0
     );
     const tvaRate = 0.2;
     const taxTotal = Math.round(subTotal * tvaRate);
-    const total = subTotal + taxTotal; // tout en centimes
+    const total = subTotal + taxTotal;
 
-    // --- 2) Créer la commande ---
     const { data: order, error: orderErr } = await supabase
       .from("orders")
       .insert({
         status: "pending",
         currency: currency.toUpperCase(),
-        sub_total: subTotal,     // bigint en centimes
-        tax_total: taxTotal,     // bigint en centimes
-        total,                   // bigint en centimes
+        sub_total: subTotal,    
+        tax_total: taxTotal,    
+        total,                  
         user_id: user.id,
       })
       .select("*")
@@ -97,15 +93,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // --- 3) Lignes de commande ---
     const rows = items.map((it) => ({
       order_id: order.id,
       product_id: it.id,
       sku: it.sku ?? null,
       name: it.name,
       qty: it.qty,
-      unit_price: it.unitCents,            // bigint en centimes
-      line_total: it.unitCents * it.qty,   // bigint en centimes
+      unit_price: it.unitCents,            
+      line_total: it.unitCents * it.qty,   
       thumbnail_url: it.image ?? null,
     }));
 
@@ -117,7 +112,6 @@ export async function POST(req: Request) {
       return Response.json({ error: itemsErr.message }, { status: 400 });
     }
 
-    // --- 4) PaymentIntent Stripe (en centimes) ---
     const paymentIntent = await stripe.paymentIntents.create({
       amount: total,
       currency,
@@ -128,17 +122,14 @@ export async function POST(req: Request) {
       },
     });
 
-    // --- 5) Sauvegarder l’id du PaymentIntent ---
     try {
       await supabase
         .from("orders")
         .update({ payment_intent_id: paymentIntent.id })
         .eq("id", order.id);
     } catch {
-      // pas bloquant
     }
 
-    // --- 6) Réponse client ---
     return Response.json({
       orderId: order.id,
       clientSecret: paymentIntent.client_secret,

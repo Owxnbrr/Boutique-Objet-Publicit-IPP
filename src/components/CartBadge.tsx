@@ -16,7 +16,6 @@ export default function CartBadge({ userId }: Props) {
     let channel: ReturnType<SupabaseClient["channel"]> | null = null;
 
     async function bootstrap() {
-      // 1) Récupérer/Créer la commande "ouverte"
       const { data: open } = await supabase
         .from("orders")
         .select("id")

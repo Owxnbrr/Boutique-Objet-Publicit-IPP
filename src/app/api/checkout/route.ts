@@ -21,7 +21,7 @@ type CheckoutBody = {
   customer_note?: string | null;
 
   currency: string;
-  total: number;        // ⚠️ on considère maintenant que c’est en CENTIMES
+  total: number;      
   lines: OrderLineInput[];
 
   shipping_method?: "delivery" | "pickup" | null;
@@ -53,7 +53,6 @@ export async function POST(req: Request) {
       .insert({
         status: "pending",
         currency: body.currency ?? "EUR",
-        // ✅ on stocke les centimes directement
         total: body.total ?? 0,
 
         customer_name: body.customer_name,
@@ -84,7 +83,6 @@ export async function POST(req: Request) {
       sku: l.sku ?? null,
       name: l.name,
       qty: l.qty,
-      // ici tes prix sont déjà en euros → OK
       unit_price: l.unit_price,
       line_total: l.line_total ?? Math.round(l.unit_price * l.qty * 100) / 100,
       thumbnail_url: l.thumbnail_url ?? null,

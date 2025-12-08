@@ -80,7 +80,6 @@ export default async function OrderPage({
     }
   );
 
-  // 1) Auth
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -93,7 +92,6 @@ export default async function OrderPage({
     );
   }
 
-  // 2) Lecture de la commande (sécurisée par user_id)
   let { data: order } = await supabase
     .from("orders")
     .select("*")
@@ -109,7 +107,6 @@ export default async function OrderPage({
     );
   }
 
-  // 3) Lignes de commande
   const { data: itemsRaw } = await supabase
     .from("order_items")
     .select("*")
@@ -118,19 +115,17 @@ export default async function OrderPage({
 
   const items = itemsRaw ?? [];
 
-  // ✅ Les montants sont stockés en CENTIMES en base.
   const eur = (cents: number) =>
     new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: order.currency || "EUR",
     }).format(
-      Math.max(0, Number.isFinite(cents) ? cents : 0) / 100 // centimes → euros
+      Math.max(0, Number.isFinite(cents) ? cents : 0) / 100
     );
 
   let status = (order.status as OrderStatus) || "pending";
   let meta = STATUS_META[status];
 
-  // 4) Récupérer / rafraîchir le client_secret Stripe
   let clientSecret: string | null = null;
 
   try {
@@ -141,7 +136,6 @@ export default async function OrderPage({
         order.payment_intent_id as string
       );
 
-      // ✅ Si Stripe dit que le paiement est réussi, on marque la commande comme payée
       if (pi.status === "succeeded" && order.status !== "paid") {
         const { data: updatedOrder } = await supabase
           .from("orders")

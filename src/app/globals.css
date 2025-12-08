@@ -716,11 +716,7 @@ GALLERY
   display:grid; 
   gap:12px
 }
-/* .thumb-row{
-  display:flex; 
-  gap:10px; 
-  flex-wrap:wrap
-} */
+
 .thumb{
   width:72px; 
   height:72px; 
@@ -1166,7 +1162,6 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   gap:10px; 
 }
 
-/* Empêche le scroll quand le menu est ouvert */
 .no-scroll, .no-scroll body { 
   overflow:hidden; 
 }
@@ -1505,7 +1500,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 }
 
 .table tr.has-status-bg a:hover {
-  text-decoration: underline; /* ou rien si tu veux garder clean */
+  text-decoration: underline;
 }
 
 .brand {
@@ -1527,7 +1522,6 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   object-fit: contain;
 }
 
-/* Un peu plus petit sur mobile */
 @media (max-width: 640px) {
   .brand_logo {
     height: 28px;
@@ -1542,20 +1536,17 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   gap: 2rem;
 }
 
-/* titre + sous-titre */
 .categories-header {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-/* grille des cartes */
 .categories-grid {
   display: grid;
   gap: 1.5rem;
 }
 
-/* responsive */
 @media (min-width: 768px) {
   .categories-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1574,7 +1565,6 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   }
 }
 
-/* carte catégorie */
 .category-card {
   position: relative;
   border-radius: 1.25rem;
@@ -1601,7 +1591,6 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
               rgba(9, 9, 22, 0.98);
 }
 
-/* top row : titre + badge compteur */
 .category-card-top {
   display: flex;
   align-items: center;
@@ -1626,14 +1615,12 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   white-space: nowrap;
 }
 
-/* sous-texte */
 .category-sub {
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.65);
   margin: 0.1rem 0 0.7rem;
 }
 
-/* footer : badge + lien */
 .category-footer {
   display: flex;
   align-items: center;
@@ -1662,8 +1649,8 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 
 .grid-variant {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 colonnes */
-  gap: 1rem; /* espace entre les cartes, optionnel */
+  grid-template-columns: repeat(2, minmax(0, 1fr)); 
+  gap: 1rem; 
 }
 .variant-name{
   color: var(--brand-300);

@@ -11,7 +11,6 @@ export default function NetlifyForms() {
       >
         <input type="hidden" name="form-name" value="quote" />
 
-        {/* anti-spam honeypot */}
         <p hidden>
           <label>
             Don’t fill this out: <input name="bot-field" />

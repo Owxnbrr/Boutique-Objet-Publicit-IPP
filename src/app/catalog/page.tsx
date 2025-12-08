@@ -23,7 +23,6 @@ type CatalogPageProps = {
   };
 };
 
-// Clé de famille = nom normalisé (minuscules, trim)
 function getFamilyKey(row: CatalogRow): string {
   return row.name.trim().toLowerCase();
 }
@@ -68,10 +67,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   const rows = (data ?? []) as CatalogRow[];
 
-  // Dédoublonnage par nom
   const deduped = dedupeByFamily(rows);
 
-  // Pagination
   const totalItems = deduped.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
   const currentPage = Math.min(

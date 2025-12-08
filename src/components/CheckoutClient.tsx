@@ -88,8 +88,7 @@ export default function CheckoutClient() {
           currency: 'EUR',
           total,
           lines,
-          // champs de suivi logistique
-          shipping_method: shippingMethod,                 // 'delivery' | 'pickup'
+          shipping_method: shippingMethod,             
           pickup_store: shippingMethod === 'pickup' ? pickupStore : null,
         }),
       });
@@ -144,7 +143,7 @@ export default function CheckoutClient() {
                       className="input"
                       type="number"
                       min={1}
-                      name={`qty-${it.productId}-${it.sku ?? 'NOSKU'}`}   // pour supprimer le warning id/name
+                      name={`qty-${it.productId}-${it.sku ?? 'NOSKU'}`}  
                       value={it.qty}
                       onChange={(e) =>
                         setQty(

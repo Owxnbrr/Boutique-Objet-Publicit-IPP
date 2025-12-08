@@ -65,7 +65,6 @@ export default function AddToCart({
         });
       }
 
-      // Sync UI (Zustand)
       add({
         id: product.id,
         sku: product.sku,

@@ -16,7 +16,6 @@ export async function POST(req: Request) {
 
     const db = admin();
 
-    // (optionnel) on récupère le produit, utile pour stocker/contrôler
     const { data: product } = await db
       .from("products")
       .select("id, name, id_anda")
@@ -37,7 +36,7 @@ export async function POST(req: Request) {
         email,
         company,
         message,
-        product_label: productLabel, // si colonne existe (sinon enlève cette ligne)
+        product_label: productLabel, 
       })
       .select("*")
       .single();
@@ -50,7 +49,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ plus d’envoi email ici (Netlify Forms gère la notif)
     return NextResponse.json({ ok: true, quote_id: quote.id });
   } catch (e) {
     console.error("Erreur /api/quote:", e);

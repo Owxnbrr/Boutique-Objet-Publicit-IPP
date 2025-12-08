@@ -6,7 +6,7 @@ import { admin } from "@/lib/db";
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   const sig = req.headers.get("stripe-signature")!;
-  const rawBody = await req.text(); // Route Handler: text() pour garder le raw body
+  const rawBody = await req.text();
 
   let event: Stripe.Event;
   try {
