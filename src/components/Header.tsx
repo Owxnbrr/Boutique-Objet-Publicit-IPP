@@ -38,7 +38,7 @@ export default function Header({ user, logout, CartBadge }: Props) {
         <Link href="/" className="brand">
           <Image
             src="/logo-ipp-blanc.webp"
-            alt="Anda"
+            alt="logo ipp"
             width={140}
             height={40}
             className="brand_logo"

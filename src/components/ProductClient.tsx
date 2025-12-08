@@ -66,7 +66,6 @@ export default function ProductClient({
         </p>
 
         <div style={{ display: "flex", gap: 8, margin: "10px 0 14px" }}>
-          <span className="badge">ANDA</span>
           {product.category && <span className="badge">{product.category}</span>}
         </div>
 

@@ -13,7 +13,6 @@ export default function Home() {
             </h1>
             <p className="muted" style={{ maxWidth: 580 }}>
               Commandez vos cadeaux d’affaires et textiles personnalisés en quelques clics.
-              Prix clairs, délais maîtrisés, intégration fournisseur ANDA.
             </p>
             <div style={{ display: 'flex', gap: 12, marginTop: 16, marginBottom:16 }}>
               <Link className="btn btn-primary" href="/catalog">Voir le catalogue</Link>
@@ -34,7 +33,7 @@ export default function Home() {
           <div className="hero-card">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="panel"><div className="h2">+270 nouveautés</div><p className="muted">Sélection 2025</p></div>
-              <div className="panel"><div className="h2">48h – 10j</div><p className="muted">Délais de prod</p></div>
+              <div className="panel"><div className="h2">72h – 10j</div><p className="muted">Délais de prod</p></div>
               <div className="panel"><div className="h2">MOQ souples</div><p className="muted">Dès 25–100 pièces</p></div>
               <div className="panel"><div className="h2">Support dédié</div><p className="muted">BAT & suivi</p></div>
             </div>
@@ -49,7 +48,7 @@ export default function Home() {
       <section className="feature-grid">
         <div className="feature">
           <div className="h2">Prix transparents</div>
-          <p className="muted">Devis précis, pas de frais cachés. Tarifs mis à jour du fournisseur.</p>
+          <p className="muted">Devis précis, pas de frais cachés.</p>
         </div>
         <div className="feature">
           <div className="h2">Qualité contrôlée</div>

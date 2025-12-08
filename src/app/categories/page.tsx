@@ -50,7 +50,6 @@ export default async function CategoriesPage() {
             </p>
 
             <div className="category-footer">
-              <span className="category-chip">ANDA</span>
               <span className="category-link">
                 Voir la sélection →
               </span>
