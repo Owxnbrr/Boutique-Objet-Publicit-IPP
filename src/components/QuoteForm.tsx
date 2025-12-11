@@ -1,4 +1,4 @@
-// src/components/QuoteForms.tsx
+// src/components/QuoteForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -40,6 +40,7 @@ export default function QuoteForm({
     const form = e.currentTarget;
     const fd = new FormData(form);
 
+    // ---------- 1) Préparation pour Netlify ----------
     const params = new URLSearchParams();
     fd.forEach((value, key) => params.append(key, String(value)));
 
@@ -48,15 +49,48 @@ export default function QuoteForm({
     params.set("variant_sku", effectiveSku);
     params.set("product_label", productLabel);
 
-    try {
-      const res = await fetch("/netlify-forms.html", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
-      });
+    // ---------- 2) Préparation pour Supabase (/api/quote) ----------
+    const payload = {
+      product_id: productId,
+      variant_sku: effectiveSku,
+      quantity: Number(fd.get("quantity") || minQty) || minQty,
+      name: String(fd.get("name") || ""),
+      email: String(fd.get("email") || ""),
+      company: fd.get("company") ? String(fd.get("company")) : null,
+      message: fd.get("message") ? String(fd.get("message")) : null,
+    };
 
-      if (!res.ok) {
-        setError("Une erreur s'est produite lors de l'envoi du devis.");
+    try {
+      // On envoie en parallèle :
+      const [netlifyRes, apiRes] = await Promise.all([
+        fetch("/netlify-forms.html", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params.toString(),
+        }),
+        fetch("/api/quote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+      ]);
+
+      if (!netlifyRes.ok) {
+        console.error("Netlify form error:", await netlifyRes.text());
+        setError(
+          "Une erreur s'est produite lors de l'envoi du devis (Netlify)."
+        );
+        setStatus("error");
+        return;
+      }
+
+      if (!apiRes.ok) {
+        const data = await apiRes.json().catch(() => null);
+        console.error("API /api/quote error:", data);
+        // on ne bloque pas Netlify, mais on te signale que le dashboard risque de ne pas voir le devis
+        setError(
+          "Le devis a été envoyé, mais l'enregistrement dans le tableau de bord a échoué."
+        );
         setStatus("error");
         return;
       }

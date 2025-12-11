@@ -1,59 +1,67 @@
+// src/app/api/quote/route.ts
 import { NextResponse } from "next/server";
-import { admin } from "@/lib/db";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+// Client "admin" qui bypass les RLS pour les INSERT
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: { persistSession: false },
+});
+
+type QuotePayload = {
+  product_id: string;
+  variant_sku: string;
+  quantity: number;
+  name: string;
+  email: string;
+  company?: string | null;
+  message?: string | null;
+};
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { product_id, variant_sku, quantity, name, email, company, message } =
-      body ?? {};
+    const body = (await req.json()) as Partial<QuotePayload>;
 
-    if (!product_id || !quantity || !name || !email) {
+    if (
+      !body.product_id ||
+      !body.variant_sku ||
+      !body.quantity ||
+      !body.name ||
+      !body.email
+    ) {
       return NextResponse.json(
-        { error: "Champs obligatoires manquants." },
+        { ok: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const db = admin();
+    const payload: QuotePayload = {
+      product_id: body.product_id,
+      variant_sku: body.variant_sku,
+      quantity: Number(body.quantity) || 1,
+      name: body.name,
+      email: body.email,
+      company: body.company ?? null,
+      message: body.message ?? null,
+    };
 
-    const { data: product } = await db
-      .from("products")
-      .select("id, name, id_anda")
-      .eq("id", product_id)
-      .maybeSingle();
+    const { error } = await supabase.from("quotes").insert(payload);
 
-    const productLabel = product
-      ? `${product.name}${product.id_anda ? ` (${product.id_anda})` : ""}`
-      : `Produit #${product_id}`;
-
-    const { data: quote, error: dbError } = await db
-      .from("quotes")
-      .insert({
-        product_id,
-        variant_sku,
-        quantity,
-        name,
-        email,
-        company,
-        message,
-        product_label: productLabel, 
-      })
-      .select("*")
-      .single();
-
-    if (dbError) {
-      console.error("Erreur Supabase (quotes):", dbError);
+    if (error) {
+      console.error("Supabase insert error (quotes):", error);
       return NextResponse.json(
-        { error: "Erreur lors de l'enregistrement du devis." },
+        { ok: false, error: error.message },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ ok: true, quote_id: quote.id });
-  } catch (e) {
-    console.error("Erreur /api/quote:", e);
+    return NextResponse.json({ ok: true });
+  } catch (err: any) {
+    console.error("API /api/quote error:", err);
     return NextResponse.json(
-      { error: "Erreur serveur lors de la demande de devis." },
+      { ok: false, error: err?.message ?? "Unknown error" },
       { status: 500 }
     );
   }
