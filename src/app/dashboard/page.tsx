@@ -232,7 +232,7 @@ export default function ClientDashboardPage() {
           .limit(5);
 
         if (qErr) {
-          // important pour voir les erreurs de RLS / droits
+          console.error("Erreur Supabase quotes:", qErr);
           throw qErr;
         }
 
@@ -490,9 +490,17 @@ export default function ClientDashboardPage() {
                         {recentQuotes.map((q: any) => (
                           <tr
                             key={q.id}
-                            // plus tard tu pourras faire router.push(`/quote/${q.id}`)
+                            onClick={() => router.push(`/quote/${q.id}`)}
+                            style={{ cursor: "pointer" }}
                           >
-                            <td>{`Q-${String(q.id).slice(0, 8)}`}</td>
+                            <td>
+                              <a
+                                href={`/quote/${q.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {`Q-${String(q.id).slice(0, 8)}`}
+                              </a>
+                            </td>
                             <td>
                               {new Date(q.created_at).toLocaleString()}
                             </td>
