@@ -497,6 +497,10 @@ export default function ClientDashboardPage() {
                               <a
                                 href={`/quote/${q.id}`}
                                 onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  textDecoration: "none",
+                                  color: "white",
+                                }}
                               >
                                 {`Q-${String(q.id).slice(0, 8)}`}
                               </a>
