@@ -28,7 +28,6 @@ export default async function QuoteDetailPage({
 
   const userEmail = session.user.email ?? "";
 
-  // On charge le devis + on s'assure qu'il appartient bien à l'utilisateur connecté
   const { data: quote, error } = await supabase
     .from("quotes")
     .select(
@@ -59,7 +58,6 @@ export default async function QuoteDetailPage({
     );
   }
 
-  // Optionnel : on va chercher le produit pour afficher son nom
   let product: { id: string; name: string } | null = null;
   if (quote.product_id) {
     const { data: p } = await supabase
