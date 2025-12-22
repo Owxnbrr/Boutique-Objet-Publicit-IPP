@@ -31,6 +31,5 @@ export function ProductCard({ id, name, thumbnail_url, min_qty, from_price }: Pr
     </div>
   </div>
 </article>
-
   );
 }

@@ -40,10 +40,31 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         <footer className="container" style={{ paddingTop: 24, paddingBottom: 48 }}>
           <hr className="hr" />
-          <p className="muted">
-            © {new Date().getFullYear()} IPPCom - Montdidier
-          </p>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              paddingTop: 12,
+            }}
+          >
+            <p className="muted" style={{ margin: 0 }}>
+              © {new Date().getFullYear()} IPPCom - Montdidier
+            </p>
+
+            <nav aria-label="Liens légaux" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+              <Link className="muted" href="/mentions-legales">Mentions légales</Link>
+              <Link className="muted" href="/confidentialite">Confidentialité</Link>
+              <Link className="muted" href="/cookies">Cookies</Link>
+              <Link className="muted" href="/cgv">CGV</Link>
+              <Link className="muted" href="/contact">Contact</Link>
+            </nav>
+          </div>
         </footer>
+
       </body>
     </html>
   );
