@@ -16,6 +16,11 @@ export default function ContactPage() {
           </a>
         </p>
 
+
+        <p style={{ marginTop: 24 }}>
+          Téléphone : 03 22 78 01 25
+        </p>
+
         <p style={{ marginTop: 24 }}>
           Adresse : 6 rue Dupuy, Montidier
         </p>
