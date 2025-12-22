@@ -1659,3 +1659,54 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 .btn-bento{
   width: 10rem;
 }
+/* --- CTA links (404 + pages simples) --- */
+.cta-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+
+.btn-link:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.btn-link:active {
+  transform: translateY(0px);
+  opacity: 0.9;
+}
+
+.btn-link:focus-visible {
+  outline: 2px solid rgba(137, 109, 255, 0.8);
+  outline-offset: 3px;
+}
+
+.btn-link--ghost {
+  background: transparent;
+}
+
+.btn-link--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+}

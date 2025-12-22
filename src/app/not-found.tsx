@@ -9,10 +9,10 @@ export default function NotFound() {
         Le lien est incorrect ou la page n’existe plus.
       </p>
 
-      <div style={{ marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <Link href="/">Retour à l’accueil</Link>
-        <Link href="/catalog">Voir le catalogue</Link>
-      </div>
+        <div className="cta-links">
+            <Link className="btn-link" href="/">Retour à l’accueil</Link>
+            <Link className="btn-link btn-link--ghost" href="/catalog">Voir le catalogue</Link>
+        </div>
     </main>
   );
 }
