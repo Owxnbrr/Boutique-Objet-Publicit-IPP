@@ -1719,23 +1719,31 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* ===== Cookies (pro) – skin sur ta charte ===== */
+
 .cookieBanner{
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  right: var(--space-3);
+  bottom: var(--space-3);
   z-index: 9999;
-  width: min(380px, calc(100vw - 32px));
-  padding: 14px;
-  border-radius: var(--cookie-radius);
-  background: linear-gradient(180deg, rgba(20,24,36,.98), rgba(15,17,21,.98));
-  color: var(--cookie-text);
-  box-shadow: var(--cookie-shadow);
-  border: 1px solid var(--cookie-line);
-  backdrop-filter: blur(10px);
+  width: min(392px, calc(100vw - (var(--space-3) * 2)));
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  backdrop-filter: blur(12px);
+
+  /* fond premium + léger glow */
+  background:
+    radial-gradient(900px 260px at 20% -30%, var(--violet-core), transparent 55%),
+    radial-gradient(700px 220px at 120% 10%, var(--warm-wash), transparent 60%),
+    linear-gradient(180deg, var(--panel-2), var(--bg-900));
+
   display: grid;
   gap: 10px;
 
-  /* slide-in vers la gauche */
+  /* slide-in depuis la droite -> vers la gauche */
   transform: translateX(120%);
   opacity: 0;
   transition: transform .45s ease, opacity .45s ease;
@@ -1745,31 +1753,25 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   opacity: 1;
 }
 
-.cookieBanner__top{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.cookieBanner__top{ display:flex; align-items:center; gap:10px; }
 .cookieBanner__badge{
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.10);
+  background: var(--warm-accent);
+  border: 1px solid color-mix(in srgb, var(--accent-500) 25%, transparent);
+  color: var(--text);
 }
-.cookieBanner__title{
-  font-weight: 700;
-  letter-spacing: .2px;
-}
+.cookieBanner__title{ font-weight: 750; letter-spacing: .2px; }
 
 .cookieBanner__text{
   margin: 0;
   font-size: 13.5px;
   line-height: 1.35;
-  color: var(--cookie-muted);
+  color: var(--muted);
 }
 .cookieBanner__link{
-  color: rgba(255,255,255,.92);
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -1782,9 +1784,9 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 
 /* Buttons */
 .cookieBtn{
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  color: var(--cookie-text);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
   border-radius: 12px;
   padding: 10px 10px;
   font-size: 13px;
@@ -1792,17 +1794,27 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   transition: transform .12s ease, filter .12s ease, background .12s ease;
   white-space: nowrap;
 }
+.cookieBtn:hover{ filter: brightness(1.06); }
 .cookieBtn:active{ transform: scale(.99); }
-.cookieBtn:hover{ filter: brightness(1.05); }
+
+.cookieBtn:focus-visible,
+.cookieIconBtn:focus-visible,
+.cookieReopen:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring);
+}
 
 .cookieBtn--primary{
-  background: #ffffff;
-  color: #0f1115;
-  border-color: rgba(255,255,255,.65);
-  font-weight: 700;
+  background: var(--brand-600);
+  border-color: color-mix(in srgb, var(--brand-600) 55%, transparent);
+  color: #fff;
+  font-weight: 750;
 }
+.cookieBtn--primary:hover{ background: var(--brand-700); }
+
 .cookieBtn--soft{
-  background: rgba(255,255,255,.10);
+  background: color-mix(in srgb, var(--brand-600) 14%, transparent);
+  border-color: color-mix(in srgb, var(--brand-600) 22%, var(--line));
 }
 .cookieBtn--ghost{
   background: transparent;
@@ -1811,15 +1823,17 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 /* Small reopen button */
 .cookieReopen{
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  right: var(--space-3);
+  bottom: var(--space-3);
   z-index: 9998;
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(20,24,36,.92);
-  color: rgba(255,255,255,.92);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(400px 180px at 30% -20%, var(--violet-core), transparent 55%),
+    linear-gradient(180deg, var(--panel-2), var(--panel));
+  color: var(--text);
   box-shadow: 0 12px 30px rgba(0,0,0,.25);
   backdrop-filter: blur(10px);
   cursor: pointer;
@@ -1833,55 +1847,46 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(8px);
   display: grid;
   place-items: center;
   padding: 18px;
   animation: cookieFadeIn .18s ease;
 }
-
-@keyframes cookieFadeIn{
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes cookieFadeIn{ from {opacity:0;} to {opacity:1;} }
 
 .cookieModal{
-  width: min(620px, 100%);
-  border-radius: 20px;
-  background: rgba(20,24,36,.98);
-  color: var(--cookie-text);
-  box-shadow: var(--cookie-shadow);
-  border: 1px solid rgba(255,255,255,.12);
+  width: min(640px, 100%);
+  border-radius: calc(var(--radius) + 4px);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px rgba(0,0,0,.40);
   overflow: hidden;
-  transform-origin: center;
+  background:
+    radial-gradient(900px 320px at 20% -30%, var(--violet-core), transparent 55%),
+    radial-gradient(800px 260px at 120% 10%, var(--warm-wash), transparent 60%),
+    linear-gradient(180deg, var(--panel-2), var(--bg-900));
   animation: cookiePop .18s ease;
 }
 @keyframes cookiePop{
-  from { transform: translateY(8px) scale(.985); opacity: .7; }
+  from { transform: translateY(8px) scale(.985); opacity: .75; }
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .cookieModal__header{
-  padding: 18px 18px 12px;
+  padding: var(--space-4) var(--space-4) var(--space-3);
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  border-bottom: 1px solid rgba(255,255,255,.10);
+  border-bottom: 1px solid var(--line);
 }
-.cookieModal__kicker{
-  font-size: 12px;
-  color: rgba(255,255,255,.68);
-}
-.cookieModal__title{
-  margin: 4px 0 6px;
-  font-size: 18px;
-  letter-spacing: .2px;
-}
+.cookieModal__kicker{ font-size: 12px; color: var(--muted); }
+.cookieModal__title{ margin: 4px 0 6px; font-size: 18px; letter-spacing: .2px; }
 .cookieModal__subtitle{
   margin: 0;
   font-size: 13.5px;
-  color: rgba(255,255,255,.72);
+  color: var(--muted);
   line-height: 1.35;
 }
 
@@ -1889,14 +1894,14 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.92);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
   cursor: pointer;
 }
 
 .cookieModal__content{
-  padding: 14px 18px 6px;
+  padding: var(--space-3) var(--space-4) var(--space-2);
   display: grid;
   gap: 10px;
 }
@@ -1907,39 +1912,27 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   justify-content: space-between;
   gap: 16px;
   padding: 12px 12px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
+  border-radius: calc(var(--radius) - 2px);
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--line);
 }
-.cookieRow__title{
-  font-weight: 700;
-  margin-bottom: 2px;
-}
+.cookieRow__title{ font-weight: 750; margin-bottom: 2px; }
 .cookieRow__desc{
   font-size: 13px;
-  color: rgba(255,255,255,.72);
+  color: var(--muted);
   line-height: 1.25;
 }
 
 /* Switch */
-.cookieSwitch{
-  position: relative;
-  width: 52px;
-  height: 30px;
-  display: inline-block;
-}
-.cookieSwitch input{
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+.cookieSwitch{ position: relative; width: 52px; height: 30px; display: inline-block; }
+.cookieSwitch input{ opacity: 0; width: 0; height: 0; }
 .cookieSwitch__track{
   position: absolute;
   inset: 0;
   border-radius: 999px;
-  background: rgba(255,255,255,.14);
-  border: 1px solid rgba(255,255,255,.12);
-  transition: background .18s ease;
+  background: rgba(255,255,255,.10);
+  border: 1px solid var(--line);
+  transition: background .18s ease, border-color .18s ease;
 }
 .cookieSwitch__thumb{
   position: absolute;
@@ -1952,48 +1945,38 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   transform: translateY(-50%);
   transition: left .18s ease;
 }
+
 .cookieSwitch input:checked + .cookieSwitch__track{
-  background: rgba(255,255,255,.40);
+  background: color-mix(in srgb, var(--brand-600) 35%, rgba(255,255,255,.10));
+  border-color: color-mix(in srgb, var(--brand-600) 55%, var(--line));
 }
-.cookieSwitch input:checked ~ .cookieSwitch__thumb{
-  left: 26px;
-}
-.cookieSwitch.is-disabled{
-  opacity: .55;
-  cursor: not-allowed;
-}
+.cookieSwitch input:checked ~ .cookieSwitch__thumb{ left: 26px; }
+
+.cookieSwitch.is-disabled{ opacity: .55; cursor: not-allowed; }
 
 .cookieModal__hint{
   margin-top: 6px;
   padding: 10px 12px;
   border-radius: 14px;
-  border: 1px dashed rgba(255,255,255,.16);
-  color: rgba(255,255,255,.75);
+  border: 1px dashed color-mix(in srgb, var(--line) 70%, transparent);
+  color: var(--muted);
   font-size: 13px;
 }
-.cookieModal__hintLabel{ opacity: .75; }
-.cookieModal__hintValue{ opacity: .95; }
+.cookieModal__hintValue{ color: var(--text); }
 
 .cookieModal__footer{
-  padding: 14px 18px 18px;
+  padding: var(--space-3) var(--space-4) var(--space-4);
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  border-top: 1px solid rgba(255,255,255,.10);
+  border-top: 1px solid var(--line);
 }
 
 @media (max-width: 520px){
-  .cookieBanner__actions{
-    grid-template-columns: 1fr;
-  }
-  .cookieModal__footer{
-    flex-direction: column;
-  }
+  .cookieBanner__actions{ grid-template-columns: 1fr; }
+  .cookieModal__footer{ flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .cookieBanner, .cookieModalOverlay, .cookieModal{
-    transition: none !important;
-    animation: none !important;
-  }
+  .cookieBanner, .cookieModalOverlay, .cookieModal{ transition: none !important; animation: none !important; }
 }
