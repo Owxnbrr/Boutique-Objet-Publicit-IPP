@@ -39,7 +39,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header user={user} logout={logout} CartBadge={CartBadge} />
 
         <main className="container">{children}
-          <CookiePopup />
         </main>
 
         <footer className="container" style={{ paddingTop: 24, paddingBottom: 48 }}>
@@ -68,7 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </nav>
           </div>
         </footer>
-
+            <CookiePopup />
       </body>
     </html>
   );
