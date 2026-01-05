@@ -3,12 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-  "dev": "next dev -p 3000",
-  "build": "next build",
-  "start": "next start -p 3000",
-  "lint": "next lint --no-error-on-unmatched-pattern",
-  "import:xml": "tsx src/scripts/import-anda-xml.ts"
-},
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint --no-error-on-unmatched-pattern",
+    "import:xml": "tsx src/scripts/import-anda-xml.ts"
+  },
   "dependencies": {
     "@stripe/react-stripe-js": "^5.3.0",
     "@stripe/stripe-js": "^8.3.0",
@@ -17,7 +17,7 @@
     "axios": "^1.13.2",
     "dotenv": "^17.2.3",
     "lucide-react": "^0.545.0",
-    "next": "14.x",
+    "next": "^14.2.35",
     "react": "18.x",
     "react-dom": "18.x",
     "recharts": "^3.2.1",
