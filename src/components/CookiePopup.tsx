@@ -2,64 +2,63 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import styles from "./CookiePopup.module.css";
 
 const KEY = "cookie_consent"; // "accepted" | "refused"
 
 export default function CookiePopup() {
-  const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [closing, setClosing] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const consent = window.localStorage.getItem(KEY);
+    const consent = localStorage.getItem(KEY);
     if (!consent) {
-      setMounted(true);
-      const t = window.setTimeout(() => setVisible(true), 200);
-      return () => window.clearTimeout(t);
+      const t = setTimeout(() => setOpen(true), 180); // laisse le temps au rendu => slide-in visible
+      return () => clearTimeout(t);
     }
   }, []);
 
-  const choose = (value: "accepted" | "refused") => {
-    window.localStorage.setItem(KEY, value);
+  const close = (value: "accepted" | "refused") => {
+    localStorage.setItem(KEY, value);
 
-    // anim sortie
-    setClosing(true);
-    setVisible(false);
-    window.setTimeout(() => setMounted(false), 450);
+    // anim de sortie
+    setLeaving(true);
+    setOpen(false);
+    setTimeout(() => setLeaving(false), 450);
   };
 
-  if (!mounted) return null;
+  if (!open && !leaving) return null;
 
   return (
     <div
       className={[
-        "cookiePopup",
-        visible ? "is-visible" : "",
-        closing ? "is-hidden" : "",
+        styles.banner,
+        open ? styles.visible : "",
+        leaving ? styles.hidden : "",
       ].join(" ")}
       role="dialog"
       aria-live="polite"
       aria-label="Consentement cookies"
     >
-      <p className="cookiePopup__text">
-        Nous utilisons des cookies pour améliorer votre expérience.{" "}
-        <Link className="cookiePopup__link" href="/cookies">
+      <div className={styles.top}>
+        <span className={styles.badge}>Cookies</span>
+        <span className={styles.title}>Préférences</span>
+      </div>
+
+      <p className={styles.text}>
+        Nous utilisons des cookies nécessaires au fonctionnement du site, et des cookies optionnels pour
+        améliorer l’expérience.{" "}
+        <Link className={styles.link} href="/cookies">
           En savoir plus
         </Link>
         .
       </p>
 
-      <div className="cookiePopup__actions">
-        <button
-          className="cookiePopup__btn cookiePopup__btn--secondary"
-          onClick={() => choose("refused")}
-        >
+      <div className={styles.actions}>
+        <button className={styles.btnGhost} onClick={() => close("refused")}>
           Refuser
         </button>
-        <button
-          className="cookiePopup__btn cookiePopup__btn--primary"
-          onClick={() => choose("accepted")}
-        >
+        <button className={styles.btnPrimary} onClick={() => close("accepted")}>
           Accepter
         </button>
       </div>
