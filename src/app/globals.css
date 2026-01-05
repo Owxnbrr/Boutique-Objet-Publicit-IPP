@@ -1710,3 +1710,79 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 .btn-link--ghost:hover {
   background: rgba(255, 255, 255, 0.06);
 }
+
+.cookiePopup{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  width: min(360px, calc(100vw - 32px));
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  display: grid;
+  gap: 10px;
+
+  /* Slide-in depuis la droite -> vers la gauche */
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform .45s ease, opacity .45s ease;
+}
+
+.cookiePopup.is-visible{
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.cookiePopup.is-hidden{
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.cookiePopup__text{
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  opacity: .95;
+}
+
+.cookiePopup__link{
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cookiePopup__actions{
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cookiePopup__btn{
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease;
+}
+.cookiePopup__btn:active{ transform: scale(.98); }
+
+.cookiePopup__btn--primary{
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+}
+
+.cookiePopup__btn--secondary{
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
+.cookiePopup__btn:hover{ filter: brightness(1.05); }
+
+@media (prefers-reduced-motion: reduce){
+  .cookiePopup{ transition: none; }
+}

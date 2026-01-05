@@ -16,6 +16,8 @@ export const metadata = {
   },
 };
 
+import CookiePopup from "@/components/CookiePopup";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const supabase = supabaseServer();
   const {
@@ -36,7 +38,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         <Header user={user} logout={logout} CartBadge={CartBadge} />
 
-        <main className="container">{children}</main>
+        <main className="container">{children}
+          <CookiePopup />
+        </main>
 
         <footer className="container" style={{ paddingTop: 24, paddingBottom: 48 }}>
           <hr className="hr" />
