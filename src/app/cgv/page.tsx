@@ -44,7 +44,7 @@ export default function CGVPage() {
 
         <h2 style={{ marginTop: 24 }}>5. Commande</h2>
         <p>
-          La commande est confirmée après validation du panier et paiement (si achat en ligne), ou après acceptation du
+          La commande est confirmée après validation du panier et paiement, ou après acceptation du
           devis. IPPCom se réserve le droit de refuser ou d’annuler une commande en cas de litige, fraude suspectée ou
           informations incomplètes.
         </p>
