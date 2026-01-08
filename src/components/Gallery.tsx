@@ -21,7 +21,6 @@ export default function Gallery({
 
   return (
     <div className="gallery">
-      {/* Image principale */}
       <div
         style={{
           position: 'relative',
@@ -42,7 +41,6 @@ export default function Gallery({
         />
       </div>
 
-      {/* Vignettes */}
       {safe.length > 1 && (
         <div className="thumb-row" role="listbox" aria-label="Autres images">
           {safe.slice(0, 6).map((img, i) => {

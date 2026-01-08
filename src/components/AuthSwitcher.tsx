@@ -120,7 +120,6 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
         ref={containerRef}
         className={`auth-switcher panel ${mode === "register" ? "is-register" : "is-login"}`}
       >
-        {/* Bouton circulaire morph pour switch */}
         <button
           aria-label={mode === "login" ? "Passer à l'inscription" : "Revenir à la connexion"}
           className={`as-toggle ${mode === "register" ? "active" : ""}`}    
@@ -130,7 +129,6 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
           <span className="shape" />
         </button>
 
-        {/* LOGIN */}
         <div className="as-pane as-login">
           <header className="auth-header">
             <h1 className="h1">Connexion</h1>

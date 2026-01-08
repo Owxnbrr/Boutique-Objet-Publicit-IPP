@@ -69,7 +69,6 @@ export default function ProductClient({
           {product.category && <span className="badge">{product.category}</span>}
         </div>
 
-        {/* Variantes = tous les produits de la même famille ANDA */}
         <VariantPicker
           variants={variants}
           productName={product.name}
@@ -83,7 +82,6 @@ export default function ProductClient({
 
         <hr className="hr" />
 
-        {/* Autres variantes (liens vers les autres produits de la famille) */}
         {siblings.length > 1 && (
           <>
             <h3 className="h2">Autres variantes</h3>
@@ -114,7 +112,6 @@ export default function ProductClient({
 
                       }}
                     >
-                      {/* tu peux remplacer par <Image> si tu veux */}
                       <img
                         src={p.thumbnail_url ?? "/placeholder.jpg"}
                         alt={p.name}
