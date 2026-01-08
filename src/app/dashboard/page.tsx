@@ -280,7 +280,7 @@ export default function ClientDashboardPage() {
                   Voici un aperçu de vos commandes et demandes.
                 </p>
               </div>
-              <div className="tools">
+              {/* <div className="tools">
                 <input
                   className="input"
                   placeholder="Rechercher…"
@@ -289,7 +289,7 @@ export default function ClientDashboardPage() {
                 <button className="btn btn-primary btn-md">
                   Créer un devis
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <section>
