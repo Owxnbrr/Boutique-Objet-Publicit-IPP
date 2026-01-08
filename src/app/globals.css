@@ -465,6 +465,7 @@ a.text-accent:hover{
   display:grid; 
   gap:18px; 
   grid-template-columns:repeat(4,1fr); 
+  padding-bottom: 18px;
 }
 @media (max-width: 1023px){ 
   .dashboard .grid-kpi{ 
@@ -481,6 +482,7 @@ a.text-accent:hover{
   display:grid; 
   gap:18px;
   grid-template-columns:2fr 1fr; 
+  padding-bottom: 18px;
 }
 @media (max-width: 1023px){ 
   .dashboard .grid-main{ 
