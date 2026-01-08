@@ -61,9 +61,9 @@ export default function ProductClient({
           {product.name}
         </h1>
 
-        <p className="muted">
+        {/* <p className="muted">
           MOQ: {minQty} • Délai: {product.lead_time_days ?? "-"} j
-        </p>
+        </p> */}
 
         <div style={{ display: "flex", gap: 8, margin: "10px 0 14px" }}>
           {product.category && <span className="badge">{product.category}</span>}
