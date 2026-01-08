@@ -213,23 +213,25 @@ export default function ClientDashboardPage() {
 
         // --- QUOTES ---
         const { data: quotes, error: qErr } = await supabase
-          .from(T.quotes.table)
-          .select(
-            [
-              T.quotes.id,
-              T.quotes.createdAt,
-              T.quotes.email,
-              T.quotes.name,
-              T.quotes.productId,
-              T.quotes.variantSku,
-              T.quotes.quantity,
-              T.quotes.company,
-              T.quotes.message,
-            ].join(", ")
+        .from(T.quotes.table)
+        .select(`
+          ${T.quotes.id},
+          ${T.quotes.createdAt},
+          ${T.quotes.email},
+          ${T.quotes.name},
+          ${T.quotes.productId},
+          ${T.quotes.variantSku},
+          ${T.quotes.quantity},
+          ${T.quotes.company},
+          ${T.quotes.message},
+          product:products (
+            name
           )
-          .eq(T.quotes.email, email)
-          .order(T.quotes.createdAt, { ascending: false })
-          .limit(5);
+        `)
+        .eq(T.quotes.email, email)
+        .order(T.quotes.createdAt, { ascending: false })
+        .limit(5);
+
 
         if (qErr) {
           console.error("Erreur Supabase quotes:", qErr);
@@ -508,7 +510,7 @@ export default function ClientDashboardPage() {
                             <td>
                               {new Date(q.created_at).toLocaleString()}
                             </td>
-                            <td>{q.product_id || q.variant_sku || "—"}</td>
+                            <td>{q.product?.name ?? q.variant_sku ?? "—"}</td>
                             <td>{String(q.quantity || 1)}</td>
                           </tr>
                         ))}
