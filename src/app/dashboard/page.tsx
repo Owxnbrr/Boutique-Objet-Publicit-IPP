@@ -508,7 +508,7 @@ export default function ClientDashboardPage() {
                             <td>
                               {new Date(q.created_at).toLocaleString()}
                             </td>
-                            <td>{q.name || q.variant_sku || "—"}</td>
+                            <td>{q.product_id || q.variant_sku || "—"}</td>
                             <td>{String(q.quantity || 1)}</td>
                           </tr>
                         ))}
