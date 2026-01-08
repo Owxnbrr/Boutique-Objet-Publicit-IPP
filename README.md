@@ -1,43 +1,55 @@
-# Boutique Objet Publicité – IPP
+# Boutique Objets Publicitaires – IPPCom
 
-Application web de boutique d’objets publicitaires réalisée avec **Next.js** et **TypeScript**.  
-Le projet propose une interface pour présenter un catalogue de produits, gérer les commandes
-et administrer le contenu via un tableau de bord.
-
+Boutique web de **goodies & objets publicitaires personnalisés** : catalogue, catégories, fiches produits (variantes), panier/commandes et espace client.  
 > Projet pédagogique – boutique d’objets publicitaires pour l’IPP.
+
+## 🔗 Démo
+- Site (Netlify) : https://ippcom-goodies.netlify.app/
+- Repo : https://github.com/Owxnbrr/Boutique-Objet-Publicit-IPP
 
 ---
 
 ## ✨ Fonctionnalités
 
-- 🛍️ **Catalogue produits**
-  - Listing des objets publicitaires (images, descriptions, prix, catégories).
-- 🧺 **Gestion des commandes**
-  - Création de commandes à partir des produits.
-  - Suivi des dernières commandes sur le dashboard.
-- 👤 **Espace client / admin**
-  - Tableau de bord avec vue synthétique (dernières commandes, stats, etc.).
-- 💾 **Persistance des données avec Supabase**
-  - Base de données hébergée.
-- 📱 **Interface responsive**
-  - Adaptation sur desktop, tablette et mobile.
-    
+### 🏠 Vitrine & navigation
+- Page d’accueil avec mise en avant de produits / sélections.
+- Navigation : **Catalogue**, **Catégories**, **Connexion**.
+
+### 🛍️ Catalogue produits
+- Listing des produits avec **pagination**.
+- Filtrage par **catégorie** (ex : COOL 2025, OUTLET, Online Exclusives, etc.).
+- Fiche produit : galerie, catégorie, **variantes**, sélection de quantité.
+
+### 🧺 Panier & commandes
+- Ajout au panier depuis la fiche produit.
+- Suivi des commandes via tableau de bord (selon configuration/roles).
+
+### 🧾 Demande de devis
+- Demande de devis depuis le site (formulaire intégré au parcours produit).
+
+### 👤 Auth (espace client / admin)
+- Connexion / inscription.
+- Mot de passe oublié (selon configuration).
+
+### 🔒 Données & services
+- Persistance via **Supabase** (auth + base de données).
+- Paiement **Stripe** (si activé / configuré).
+- Politique cookies & confidentialité (RGPD-friendly).
+
 ---
 
 ## 🧰 Stack technique
-
-- [Next.js](https://nextjs.org/) (App Router)
-- [React](https://react.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Supabase](https://supabase.com/) pour la base de données 
-- CSS via `globals.css`
+- **Next.js** (App Router)
+- **React**
+- **TypeScript**
+- **Supabase** (auth + base de données)
+- Déploiement : **Netlify**
 
 ---
 
 ## 🚀 Prérequis
-
-- **Node.js** ≥ 18  
-- **npm** (ou `pnpm` / `yarn` si tu modifies les commandes)
+- **Node.js ≥ 18**
+- npm (ou pnpm / yarn)
 - Un projet **Supabase** (URL + clé `anon` au minimum)
 
 ---
@@ -45,12 +57,12 @@ et administrer le contenu via un tableau de bord.
 ## ⚙️ Installation
 
 ```bash
-# 1. Cloner le dépôt
+# 1) Cloner
 git clone https://github.com/Owxnbrr/Boutique-Objet-Publicit-IPP.git
 cd Boutique-Objet-Publicit-IPP
 
-# 2. Installer les dépendances
+# 2) Installer
 npm install
 
-# 3. Lancer le serveur de dev
+# 3) Lancer en dev
 npm run dev
