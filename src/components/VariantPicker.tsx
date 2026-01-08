@@ -86,7 +86,7 @@ export default function VariantPicker({
           )}
         </div>
 
-        <div className="quantity-row">
+        <div className="quantity-row" style={{display:'flex', flexDirection:'column', gap:8 }}>
           <label>
             Quantité
             <input
