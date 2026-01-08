@@ -112,9 +112,6 @@ body::after{
   margin:0 auto; 
   padding:0 var(--space-4)
 }
-section{
-  margin:var(--space-6) 0
-}
 .h1{
   font-size:38px; 
   line-height:1.15; 

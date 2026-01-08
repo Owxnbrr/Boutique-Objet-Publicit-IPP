@@ -71,7 +71,7 @@ export default async function QuoteDetailPage({
   return (
     <div className="container" style={{ padding: "40px 0" }}>
       <div className="card" style={{ maxWidth: 720, margin: "0 auto" }}>
-        <div className="card-header" style={{ marginBottom: 16 }}>
+        <div className="card-header">
           <p className="card-title" style={{ marginBottom: 4 }}>
             Devis #{String(quote.id).slice(0, 8)}
           </p>
