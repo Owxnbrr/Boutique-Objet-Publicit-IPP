@@ -31,7 +31,7 @@ export default function ConfidentialitePage() {
           <li>Compte : informations liées à l’authentification (via Supabase)</li>
           <li>Commande : panier, historique de commande, informations nécessaires à la facturation et au suivi</li>
           <li>Devis : informations transmises lors d’une demande de devis</li>
-          <li>Mesure d’audience : données liées à Google Analytics (si activé)</li>
+          <li>Mesure d’audience : données liées à Google Analytics</li>
         </ul>
 
         <h2 style={{ marginTop: 24 }}>Finalités</h2>
@@ -61,7 +61,7 @@ export default function ConfidentialitePage() {
             <strong>Stripe</strong> : traitement des paiements
           </li>
           <li>
-            <strong>Google Analytics</strong> : mesure d’audience (si activé)
+            <strong>Google Analytics</strong> : mesure d’audience 
           </li>
         </ul>
 

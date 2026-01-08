@@ -34,7 +34,7 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="panel"><div className="h2">+270 nouveautés</div><p className="muted">Sélection 2025</p></div>
               <div className="panel"><div className="h2">72h – 10j</div><p className="muted">Délais de prod</p></div>
-              <div className="panel"><div className="h2">MOQ souples</div><p className="muted">Dès 25–100 pièces</p></div>
+              <div className="panel"><div className="h2">Livraison rapide</div><p className="muted">Expédition en France</p></div>
               <div className="panel"><div className="h2">Support dédié</div><p className="muted">BAT & suivi</p></div>
             </div>
           </div>
