@@ -1981,3 +1981,8 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 @media (prefers-reduced-motion: reduce){
   .cookieBanner, .cookieModalOverlay, .cookieModal{ transition: none !important; animation: none !important; }
 }
+.thumb-row{
+  display:flex; 
+  align-items:center; 
+  gap:8px; 
+}
