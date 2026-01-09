@@ -598,7 +598,8 @@ a.text-accent:hover{
 .feature-grid{
   display:grid; 
   gap: var(--space-3); 
-  grid-template-columns:repeat(4,1fr)
+  grid-template-columns:repeat(4,1fr);
+  padding-top: 18px;
 }
 .feature{
   padding: var(--space-3); 
