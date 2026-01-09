@@ -15,7 +15,7 @@ export default function CGVPage() {
 
         <h2 style={{ marginTop: 24 }}>1. Vendeur</h2>
         <p>
-          <strong>IPPCom</strong> — 6 rue Dupuy, Montidier
+          <strong>IPPCom</strong> — 6 rue Dupuy, Montdidier
           <br />
           Contact :{" "}
           <a href="mailto:contact@ipp-imprimerie.fr">

@@ -22,7 +22,7 @@ export default function ContactPage() {
         </p>
 
         <p style={{ marginTop: 24 }}>
-          Adresse : 6 rue Dupuy, Montidier
+          Adresse : 6 rue Dupuy, Montdidier
         </p>
       </div>
     </main>

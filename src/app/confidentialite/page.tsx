@@ -15,7 +15,7 @@ export default function ConfidentialitePage() {
 
         <h2 style={{ marginTop: 24 }}>Responsable de traitement</h2>
         <p>
-          <strong>IPPCom</strong> — 6 rue Dupuy, Montidier
+          <strong>IPPCom</strong> — 6 rue Dupuy, Montdidier
           <br />
           Contact :{" "}
           <a href="mailto:contact@ipp-imprimerie.fr">

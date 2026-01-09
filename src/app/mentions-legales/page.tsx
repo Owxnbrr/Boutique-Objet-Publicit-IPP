@@ -17,7 +17,7 @@ export default function MentionsLegalesPage() {
         <p>
           <strong>IPPCom</strong>
           <br />
-          6 rue Dupuy, Montidier
+          6 rue Dupuy, Montdidier
           <br />
           Email :{" "}
           <a href="mailto:contact@ipp-imprimerie.fr">
