@@ -154,7 +154,8 @@ body::after{
   height:1px; 
   background:var(--line); 
   border:0; 
-  margin:16px 0}
+  margin:16px 
+}
 .row{
   display:grid; 
   gap:28px; 
