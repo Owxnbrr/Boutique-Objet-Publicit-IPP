@@ -122,8 +122,34 @@ body::after{
   margin:0 0 var(--space-1)
 }
 .muted{
-  color:var(--muted)
+  color:var(--muted);
 }
+.mutedF{
+  color: var(--muted);
+  text-decoration: none;
+  position: relative;
+  display: inline-block; 
+  padding-bottom: 2px;   
+}
+
+.mutedF::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;               
+  background: currentColor;    
+  transform: scaleX(0);
+  transform-origin: left;       
+  transition: transform 200ms ease;
+}
+
+.mutedF:hover::after,
+.mutedF:focus-visible::after{
+  transform: scaleX(1);
+}
+
 .hr{
   height:1px; 
   background:var(--line); 

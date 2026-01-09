@@ -62,11 +62,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </p>
 
             <nav aria-label="Liens légaux" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-              <Link className="muted" href="/mentions-legales">Mentions légales</Link>
-              <Link className="muted" href="/confidentialite">Confidentialité</Link>
-              <Link className="muted" href="/cookies">Cookies</Link>
-              <Link className="muted" href="/cgv">CGV</Link>
-              <Link className="muted" href="/contact">Contact</Link>
+              <Link className="mutedF" href="/mentions-legales">Mentions légales</Link>
+              <Link className="mutedF" href="/confidentialite">Confidentialité</Link>
+              <Link className="mutedF" href="/cookies">Cookies</Link>
+              <Link className="mutedF" href="/cgv">CGV</Link>
+              <Link className="mutedF" href="/contact">Contact</Link>
             </nav>
           </div>
         </footer>
