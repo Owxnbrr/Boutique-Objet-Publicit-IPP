@@ -14,9 +14,6 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  icons: {
-    icon: "/logo.svg",
-  },
   verification: {
     google: "CKyIlQ8uhJYfTaSG6yAA259gEPoqFb_AnOEVKZUtzxo",
   },
