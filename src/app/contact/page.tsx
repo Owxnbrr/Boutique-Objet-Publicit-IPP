@@ -1,5 +1,10 @@
-export const metadata = {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Contact",
+  description:
+    "Contactez IPPCom pour un devis de goodies personnalisés : réponse rapide, accompagnement et livraison en France.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

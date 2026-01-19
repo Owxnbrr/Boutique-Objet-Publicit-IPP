@@ -14,6 +14,58 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ippcom-goodies.netlify.app"),
+
+  title: {
+    default: "IPPCom Goodies | Objets pub & goodies personnalisés",
+    template: "%s | IPPCom Goodies",
+  },
+
+  description:
+    "Objets publicitaires et goodies personnalisés pour entreprises, associations et événements. Catalogue, devis rapide et livraison en France. IPPCom (Montdidier).",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "/",
+    siteName: "IPPCom Goodies",
+    title: "IPPCom Goodies | Objets pub & goodies personnalisés",
+    description:
+      "Objets publicitaires et goodies personnalisés. Catalogue, devis rapide, livraison en France.",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "IPPCom Goodies",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "IPPCom Goodies | Objets pub & goodies personnalisés",
+    description:
+      "Objets publicitaires et goodies personnalisés. Catalogue, devis rapide, livraison en France.",
+    images: ["/og.jpg"],
+  },
+
   verification: {
     google: "CKyIlQ8uhJYfTaSG6yAA259gEPoqFb_AnOEVKZUtzxo",
   },
