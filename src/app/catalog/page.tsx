@@ -1,9 +1,12 @@
 // src/app/catalog/page.tsx
-import { admin } from "@/lib/db";
-import ClientGrid from "@/components/ClientGrid";
+import type { Metadata } from "next";
 import Link from "next/link";
 
+import { admin } from "@/lib/db";
+import ClientGrid from "@/components/ClientGrid";
+
 const PAGE_SIZE = 48;
+const SITE_URL = "https://ippcom-goodies.netlify.app";
 
 type CatalogRow = {
   id: string;
@@ -41,6 +44,75 @@ function dedupeByFamily(rows: CatalogRow[]): CatalogRow[] {
   return result;
 }
 
+function buildCanonicalPath(searchParams?: CatalogPageProps["searchParams"]) {
+  const q = (searchParams?.q ?? "").trim();
+  const category = (searchParams?.category ?? "").trim();
+  const page = Math.max(1, parseInt(searchParams?.page ?? "1", 10) || 1);
+
+  // pages recherche = on les indexe pas (mais canonical quand même)
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  if (page > 1) params.set("page", String(page));
+  if (q) params.set("q", q);
+
+  const qs = params.toString();
+  return `/catalog${qs ? `?${qs}` : ""}`;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: CatalogPageProps): Promise<Metadata> {
+  const q = (searchParams?.q ?? "").trim();
+  const category = (searchParams?.category ?? "").trim();
+  const page = Math.max(1, parseInt(searchParams?.page ?? "1", 10) || 1);
+
+  const baseTitle = "Catalogue";
+  const titleParts = [baseTitle];
+
+  if (category) titleParts.push(category);
+  if (q) titleParts.push(`Recherche : ${q}`);
+  if (page > 1) titleParts.push(`Page ${page}`);
+
+  const title = titleParts.join(" • ");
+
+  const description =
+    q
+      ? `Résultats de recherche pour “${q}” dans le catalogue IPPCom Goodies. Goodies et objets publicitaires personnalisés, devis rapide et livraison en France.`
+      : category
+        ? `Découvrez notre sélection “${category}” : objets publicitaires et goodies personnalisés. Devis rapide, production maîtrisée et livraison en France.`
+        : `Découvrez notre catalogue de goodies, objets publicitaires et textiles personnalisés. Devis rapide, production 5–10 jours (selon références) et livraison en France.`;
+
+  const canonicalPath = buildCanonicalPath(searchParams);
+  const ogImage = "/og.jpg";
+
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+
+    // Très important : on évite que Google indexe les pages de recherche interne
+    robots: q
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
+
+    openGraph: {
+      url: canonicalPath,
+      title: `${title} | IPPCom Goodies`,
+      description,
+      images: [ogImage],
+      type: "website",
+      siteName: "IPPCom Goodies",
+      locale: "fr_FR",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | IPPCom Goodies`,
+      description,
+      images: [ogImage],
+    },
+  };
+}
+
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const db = admin();
 
@@ -50,9 +122,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
 
   let query = db
     .from("products")
-    .select(
-      "id, name, thumbnail_url, min_qty, id_anda, category, anda_root"
-    )
+    .select("id, name, thumbnail_url, min_qty, id_anda, category, anda_root")
     .order("name");
 
   if (q) query = query.ilike("name", `%${q}%`);
@@ -66,23 +136,39 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   }
 
   const rows = (data ?? []) as CatalogRow[];
-
   const deduped = dedupeByFamily(rows);
 
   const totalItems = deduped.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  const currentPage = Math.min(
-    Math.max(pageParam || 1, 1),
-    totalPages
-  );
+  const currentPage = Math.min(Math.max(pageParam || 1, 1), totalPages);
 
   const start = (currentPage - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
   const pageRows = deduped.slice(start, end);
 
+  // JSON-LD Breadcrumbs
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Catalogue", item: `${SITE_URL}/catalog` },
+    ],
+  };
+
   return (
     <section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
       <h1 className="h1">Catalogue</h1>
+
+      <p className="muted" style={{ maxWidth: 720 }}>
+        Explorez notre sélection de goodies et objets publicitaires personnalisables.
+        Vous pouvez rechercher un produit ou filtrer par catégorie.
+      </p>
 
       <form
         className="catalog-search"
@@ -96,6 +182,11 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           placeholder="Rechercher un produit..."
           defaultValue={q}
         />
+
+        {/* Si tu veux garder le filtre category dans le form quand il est actif */}
+        {categoryFilter ? (
+          <input type="hidden" name="category" value={categoryFilter} />
+        ) : null}
       </form>
 
       <ClientGrid rows={pageRows} />
@@ -108,7 +199,12 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           marginTop: 24,
         }}
       >
-        <PagerButton page={currentPage - 1} disabled={currentPage <= 1} q={q} />
+        <PagerButton
+          page={currentPage - 1}
+          disabled={currentPage <= 1}
+          q={q}
+          category={categoryFilter}
+        />
         <span className="badge">
           Page {currentPage} / {totalPages}
         </span>
@@ -116,6 +212,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           page={currentPage + 1}
           disabled={currentPage >= totalPages}
           q={q}
+          category={categoryFilter}
           label="Suivant"
         />
       </div>
@@ -127,11 +224,13 @@ function PagerButton({
   page,
   disabled,
   q,
+  category,
   label,
 }: {
   page: number;
   disabled: boolean;
   q: string;
+  category: string;
   label?: string;
 }) {
   if (disabled) {
@@ -144,6 +243,7 @@ function PagerButton({
 
   const params = new URLSearchParams();
   if (q) params.set("q", q);
+  if (category) params.set("category", category);
   params.set("page", String(page));
 
   return (
