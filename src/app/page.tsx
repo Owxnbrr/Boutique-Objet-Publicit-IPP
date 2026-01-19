@@ -1,5 +1,26 @@
+//src/app/page.tsx
 import Link from 'next/link';
 import Bento from '../components/Bento';
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Objets pub & goodies personnalisés",
+  description:
+    "Commandez vos objets publicitaires, goodies et textiles personnalisés. Devis rapide, production 5–10 jours, livraison en France. IPPCom (Montdidier).",
+  alternates: { canonical: "/" },
+  openGraph: {
+    url: "/",
+    title: "Objets pub & goodies personnalisés | IPPCom Goodies",
+    description:
+      "Objets publicitaires, goodies et textiles personnalisés. Devis rapide, livraison en France.",
+    images: ["/og.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og.jpg"],
+  },
+};
+
 
 export default function Home() {
   return (

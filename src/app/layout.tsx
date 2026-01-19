@@ -24,10 +24,6 @@ export const metadata: Metadata = {
   description:
     "Objets publicitaires et goodies personnalisés pour entreprises, associations et événements. Catalogue, devis rapide et livraison en France. IPPCom (Montdidier).",
 
-  alternates: {
-    canonical: "/",
-  },
-
   robots: {
     index: true,
     follow: true,
