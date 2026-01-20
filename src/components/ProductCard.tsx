@@ -20,18 +20,16 @@ export function ProductCard({ id, name, thumbnail_url, min_qty, from_price }: Pr
   const url = firstUrl(thumbnail_url);
 
   return (
-    <link href={`/product/${id}`} className="product-card">
-      <article className="card">
+  <Link href={`/product/${id}`} className="product-card">
+    <article className="card">
       {url && <Image src={url} alt={name} width={480} height={300} />}
       <h3>{name}</h3>
 
       <div className="card-items">
-
         <div className="actions">
-          <Link className="btn-product" href={`/product/${id}`}>Voir</Link>
+          <span className="btn-product">Voir</span>
         </div>
       </div>
-      </article>
-    </link>
-  );
-}
+    </article>
+  </Link>
+);}
