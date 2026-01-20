@@ -163,7 +163,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <h1 className="h1">Catalogue</h1>
+      <h1 className="h1">Catalogue de la catégorie {categoryFilter || "Tous les produits"}</h1>
 
       <p className="muted" style={{ maxWidth: 720 }}>
         Explorez notre sélection de goodies et objets publicitaires personnalisables.
