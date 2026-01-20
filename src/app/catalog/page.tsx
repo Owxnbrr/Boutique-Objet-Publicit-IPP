@@ -175,7 +175,6 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const end = start + PAGE_SIZE;
   const pageRows = deduped.slice(start, end);
 
-  // JSON-LD Breadcrumbs
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -214,7 +213,6 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
           defaultValue={q}
         />
 
-        {/* Si tu veux garder le filtre category dans le form quand il est actif */}
         {categoryFilter ? (
           <input type="hidden" name="category" value={categoryFilter} />
         ) : null}
