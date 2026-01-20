@@ -2014,3 +2014,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   align-items:center; 
   gap:8px; 
 }
+
+.contact-email{
+  color: var(--brand-200);
+}
