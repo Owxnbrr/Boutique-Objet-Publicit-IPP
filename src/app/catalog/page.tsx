@@ -26,22 +26,51 @@ type CatalogPageProps = {
   };
 };
 
-function getFamilyKey(row: CatalogRow): string {
-  return row.name.trim().toLowerCase();
+function normalizeKey(s: string) {
+  return s
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // retire accents
+    .replace(/[^a-z0-9]+/g, " ") // garde alphanum
+    .trim();
 }
 
+function getFamilyKey(row: CatalogRow): string {
+  // 1) meilleur identifiant de "famille" si dispo
+  if (row.anda_root && row.anda_root.trim()) return row.anda_root.trim().toLowerCase();
+
+  // 2) fallback : root de id_anda (ex AP721585-10 => AP721585)
+  if (row.id_anda && row.id_anda.trim()) return row.id_anda.split("-")[0].trim().toLowerCase();
+
+  // 3) dernier recours : nom normalisé
+  return normalizeKey(row.name);
+}
+
+/**
+ * Dédoublonne par famille et garde le "meilleur" candidat :
+ * - préfère un produit qui a une thumbnail_url
+ * - sinon garde le premier
+ */
 function dedupeByFamily(rows: CatalogRow[]): CatalogRow[] {
-  const seen = new Set<string>();
-  const result: CatalogRow[] = [];
+  const map = new Map<string, CatalogRow>();
 
   for (const row of rows) {
     const key = getFamilyKey(row);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    result.push(row);
+    const prev = map.get(key);
+
+    if (!prev) {
+      map.set(key, row);
+      continue;
+    }
+
+    // Remplace si l'ancien n'a pas d'image mais le nouveau oui
+    if (!prev.thumbnail_url && row.thumbnail_url) {
+      map.set(key, row);
+    }
   }
 
-  return result;
+  return Array.from(map.values());
 }
 
 function buildCanonicalPath(searchParams?: CatalogPageProps["searchParams"]) {
@@ -163,7 +192,14 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <h1 className="h1">Catalogue de la catégorie {categoryFilter || "Tous les produits"}</h1>
+      <h1 className="h1">
+        Catalogue de la catégorie {categoryFilter || "Tous les produits"}
+      </h1>
+
+      {/* ✅ Indicateur utile pour vérifier que rien ne "manque" */}
+      <p className="muted" style={{ marginTop: 6 }}>
+        {totalItems} produits • Page {currentPage} / {totalPages}
+      </p>
 
       <p className="muted" style={{ maxWidth: 720 }}>
         Explorez notre sélection de goodies et objets publicitaires personnalisables.
