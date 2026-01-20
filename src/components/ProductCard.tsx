@@ -24,12 +24,11 @@ export function ProductCard({ id, name, thumbnail_url, min_qty, from_price }: Pr
   {url && <Image src={url} alt={name} width={480} height={300} />}
   <h3>{name}</h3>
 
-  <div className="card-items">
-
-    <div className="actions">
-      <Link className="btn-product" href={`/product/${id}`}>Voir</Link>
-    </div>
+  <Link href={`/product/${id}`} className="card-items">
+  <div className="actions">
+    <span className="btn-product">Voir</span>
   </div>
+</Link>
 </article>
   );
 }
