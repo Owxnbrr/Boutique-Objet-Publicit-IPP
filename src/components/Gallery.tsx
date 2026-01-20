@@ -29,6 +29,7 @@ export default function Gallery({
           borderRadius: 16,
           border: '1px solid var(--line)',
           overflow: 'hidden',
+          background: 'var(--panel)',
         }}
       >
         <Image
@@ -36,7 +37,7 @@ export default function Gallery({
           alt={alt}
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'contain', objectPosition: 'center', }}
           priority
         />
       </div>

@@ -106,19 +106,16 @@ export default function ProductClient({
                         border: "1px solid var(--line)",
                         overflow: "hidden",
                         aspectRatio: "1/1",
-                        width: 100,         
+                        width: "50%",
                         height: 100,
-                        flex: "0 0 100px", 
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: "var(--panel)",
+                        display:"flex",
+
                       }}
                     >
                       <img
                         src={p.thumbnail_url ?? "/placeholder.jpg"}
                         alt={p.name}
-                        style={{ width: "100%", height: "100%", objectFit: "contain", }}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />
                     </div>
                     <div style={{ fontSize: 14 }}>
