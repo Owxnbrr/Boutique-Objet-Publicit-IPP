@@ -196,11 +196,6 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
         Catalogue de la catégorie {categoryFilter || "Tous les produits"}
       </h1>
 
-      {/* ✅ Indicateur utile pour vérifier que rien ne "manque" */}
-      <p className="muted" style={{ marginTop: 6 }}>
-        {totalItems} produits • Page {currentPage} / {totalPages}
-      </p>
-
       <p className="muted" style={{ maxWidth: 720 }}>
         Explorez notre sélection de goodies et objets publicitaires personnalisables.
         Vous pouvez rechercher un produit ou filtrer par catégorie.
