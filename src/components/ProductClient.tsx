@@ -118,7 +118,7 @@ export default function ProductClient({
                       <img
                         src={p.thumbnail_url ?? "/placeholder.jpg"}
                         alt={p.name}
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        style={{ width: "100%", height: "100%", objectFit: "contain", }}
                       />
                     </div>
                     <div style={{ fontSize: 14 }}>
