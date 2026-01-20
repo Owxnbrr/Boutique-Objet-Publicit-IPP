@@ -65,7 +65,7 @@ export default function ProductClient({
           MOQ: {minQty} • Délai: {product.lead_time_days ?? "-"} j
         </p> */}
 
-        <div style={{ display: "flex", gap: 8, margin: "10px 0 14px" }}>
+        {/* <div style={{ display: "flex", gap: 8, margin: "10px 0 14px" }}>
           {product.category && <span className="badge">{product.category}</span>}
         </div>
 
@@ -78,7 +78,7 @@ export default function ProductClient({
           productId={product.id}
           selectedSku={selectedSku}
           onChangeSku={setSelectedSku}
-        />
+        /> */}
 
         <hr className="hr" />
 
