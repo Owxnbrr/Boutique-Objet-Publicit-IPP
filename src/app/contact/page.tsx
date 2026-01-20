@@ -16,7 +16,7 @@ export default function ContactPage() {
         <p>Pour toute question ou demande, vous pouvez nous contacter par email :</p>
 
         <p style={{ marginTop: 12 }}>
-          <a href="mailto:contact@ipp-imprimerie.fr">
+          <a className="contact-email" href="mailto:contact@ipp-imprimerie.fr">
             contact@ipp-imprimerie.fr
           </a>
         </p>
