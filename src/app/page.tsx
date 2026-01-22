@@ -36,7 +36,7 @@ export default function Home() {
             </p>
             <div style={{ display: 'flex', gap: 12, marginTop: 16, marginBottom:16 }}>
               <Link className="btn btn-primary" href="/catalog">Voir le catalogue</Link>
-              <Link className="btn btn-ghost btn-devis" href="#devis">Demander un devis</Link>
+              <Link className="btn btn-ghost" href="#devis">Demander un devis</Link>
             </div>
 
             <div className="trust">
