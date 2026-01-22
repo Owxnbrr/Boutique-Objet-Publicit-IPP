@@ -213,7 +213,8 @@ body::after{
   cursor:pointer; 
   text-decoration:none; 
   font-weight:700;
-  transition:transform .06s ease, box-shadow .15s ease, background .15s ease
+  transition:transform .06s ease, box-shadow .15s ease, background .15s ease;
+  background:linear-gradient(180deg,var(--panel),var(--panel-3));
 }
 .btn:active{
   transform:translateY(1px)
