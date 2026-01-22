@@ -1991,7 +1991,9 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   color: var(--muted);
   font-size: 13px;
 }
-.cookieModal__hintValue{ color: var(--text); }
+.cookieModal__hintValue{ 
+  color: var(--text); 
+}
 
 .cookieModal__footer{
   padding: var(--space-3) var(--space-4) var(--space-4);
@@ -2002,12 +2004,19 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 }
 
 @media (max-width: 520px){
-  .cookieBanner__actions{ grid-template-columns: 1fr; }
-  .cookieModal__footer{ flex-direction: column; }
+  .cookieBanner__actions{ 
+    grid-template-columns: 1fr; 
+  }
+  .cookieModal__footer{ 
+    flex-direction: column; 
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .cookieBanner, .cookieModalOverlay, .cookieModal{ transition: none !important; animation: none !important; }
+  .cookieBanner, .cookieModalOverlay, .cookieModal{ 
+    transition: none !important; 
+    animation: none !important; 
+  }
 }
 .thumb-row{
   display:flex; 

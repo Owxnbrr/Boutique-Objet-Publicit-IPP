@@ -37,13 +37,10 @@ function normalizeKey(s: string) {
 }
 
 function getFamilyKey(row: CatalogRow): string {
-  // 1) meilleur identifiant de "famille" si dispo
   if (row.anda_root && row.anda_root.trim()) return row.anda_root.trim().toLowerCase();
 
-  // 2) fallback : root de id_anda (ex AP721585-10 => AP721585)
   if (row.id_anda && row.id_anda.trim()) return row.id_anda.split("-")[0].trim().toLowerCase();
 
-  // 3) dernier recours : nom normalisé
   return normalizeKey(row.name);
 }
 
@@ -64,7 +61,6 @@ function dedupeByFamily(rows: CatalogRow[]): CatalogRow[] {
       continue;
     }
 
-    // Remplace si l'ancien n'a pas d'image mais le nouveau oui
     if (!prev.thumbnail_url && row.thumbnail_url) {
       map.set(key, row);
     }
@@ -78,7 +74,6 @@ function buildCanonicalPath(searchParams?: CatalogPageProps["searchParams"]) {
   const category = (searchParams?.category ?? "").trim();
   const page = Math.max(1, parseInt(searchParams?.page ?? "1", 10) || 1);
 
-  // pages recherche = on les indexe pas (mais canonical quand même)
   const params = new URLSearchParams();
   if (category) params.set("category", category);
   if (page > 1) params.set("page", String(page));
@@ -119,7 +114,6 @@ export async function generateMetadata({
     description,
     alternates: { canonical: canonicalPath },
 
-    // Très important : on évite que Google indexe les pages de recherche interne
     robots: q
       ? { index: false, follow: true }
       : { index: true, follow: true },

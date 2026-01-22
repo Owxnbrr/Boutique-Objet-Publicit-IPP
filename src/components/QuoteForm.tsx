@@ -40,7 +40,6 @@ export default function QuoteForm({
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    // ---------- 1) Préparation pour Netlify ----------
     const params = new URLSearchParams();
     fd.forEach((value, key) => params.append(key, String(value)));
 
@@ -49,7 +48,6 @@ export default function QuoteForm({
     params.set("variant_sku", effectiveSku);
     params.set("product_label", productLabel);
 
-    // ---------- 2) Préparation pour Supabase (/api/quote) ----------
     const payload = {
       product_id: productId,
       variant_sku: effectiveSku,
@@ -61,7 +59,6 @@ export default function QuoteForm({
     };
 
     try {
-      // On envoie en parallèle :
       const [netlifyRes, apiRes] = await Promise.all([
         fetch("/netlify-forms.html", {
           method: "POST",
@@ -87,7 +84,6 @@ export default function QuoteForm({
       if (!apiRes.ok) {
         const data = await apiRes.json().catch(() => null);
         console.error("API /api/quote error:", data);
-        // on ne bloque pas Netlify, mais on te signale que le dashboard risque de ne pas voir le devis
         setError(
           "Le devis a été envoyé, mais l'enregistrement dans le tableau de bord a échoué."
         );
@@ -115,17 +111,14 @@ export default function QuoteForm({
       style={{ display: "grid", gap: 10 }}
       aria-describedby="quote-status"
     >
-      {/* requis pour Netlify */}
       <input type="hidden" name="form-name" value="quote" />
 
-      {/* honeypot */}
       <p hidden>
         <label>
           Don’t fill this out: <input name="bot-field" />
         </label>
       </p>
 
-      {/* infos produit */}
       <input type="hidden" name="product_id" value={productId} />
       <input type="hidden" name="variant_sku" value={effectiveSku} />
       <input type="hidden" name="product_label" value={productLabel} />

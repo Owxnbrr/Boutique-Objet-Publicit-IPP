@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "./CookiePopup.module.css";
 
-const KEY = "cookie_consent"; // "accepted" | "refused"
+const KEY = "cookie_consent";
 
 export default function CookiePopup() {
   const [open, setOpen] = useState(false);
@@ -21,7 +21,6 @@ export default function CookiePopup() {
   const close = (value: "accepted" | "refused") => {
     localStorage.setItem(KEY, value);
 
-    // anim de sortie
     setLeaving(true);
     setOpen(false);
     setTimeout(() => setLeaving(false), 450);

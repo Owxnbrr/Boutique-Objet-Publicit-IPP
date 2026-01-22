@@ -27,7 +27,6 @@ export function readConsent(): ConsentV1 | null {
     const parsed = JSON.parse(raw) as ConsentV1;
     if (parsed?.version !== 1 || !parsed?.categories) return null;
 
-    // force nécessaire
     parsed.categories.necessary = true;
     return parsed;
   } catch {
@@ -37,7 +36,6 @@ export function readConsent(): ConsentV1 | null {
 
 export function writeConsent(categories: Partial<ConsentV1["categories"]>): ConsentV1 {
   if (typeof window === "undefined") {
-    // ne devrait pas arriver côté client-only
     return { version: 1, categories: { ...defaultCategories }, updatedAt: new Date().toISOString() };
   }
 
@@ -53,13 +51,11 @@ export function writeConsent(categories: Partial<ConsentV1["categories"]>): Cons
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(consent));
 
-  // cookie lisible partout (si un jour tu veux le lire côté serveur)
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie =
     `${COOKIE_NAME}=${encodeURIComponent(JSON.stringify(consent))}` +
     `; Path=/; Max-Age=${MAX_AGE_SECONDS}; SameSite=Lax${secure}`;
 
-  // event pour que d'autres composants réagissent
   window.dispatchEvent(new CustomEvent("cookie-consent-updated", { detail: consent }));
 
   return consent;

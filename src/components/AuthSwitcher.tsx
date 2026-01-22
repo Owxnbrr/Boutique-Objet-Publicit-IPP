@@ -189,7 +189,6 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
           </div>
         </div>
 
-        {/* REGISTER */}
         <div className="as-pane as-register">
           <header className="auth-header">
             <h1 className="h1">Créer un compte</h1>

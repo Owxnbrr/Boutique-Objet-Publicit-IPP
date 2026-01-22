@@ -40,7 +40,6 @@ export default async function Bento() {
 
     return (
       <article className={`card bento-item ${className}`}>
-        {/* Image plein cadre */}
         {url && (
           <Image
             src={url}
@@ -52,7 +51,6 @@ export default async function Bento() {
           />
         )}
 
-        {/* Overlay */}
         <div className="bento-inner">
           <span className="badge">{p?.category ?? 'Produit'}</span>
           <h3 className={large ? 'bento-title-lg' : 'bento-title'}>{p?.name}</h3>

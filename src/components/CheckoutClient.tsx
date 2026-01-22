@@ -116,7 +116,6 @@ export default function CheckoutClient() {
 
   return (
     <div className="panel" style={{ display: 'grid', gap: 24 }}>
-      {/* Récap panier */}
       <div>
         <h3 className="h2" style={{ marginTop: 0 }}>Votre commande</h3>
         <div style={{ display: 'grid', gap: 12 }}>
@@ -174,7 +173,6 @@ export default function CheckoutClient() {
 
       <hr className="hr" />
 
-      {/* Choix de réception */}
       <div style={{ display: 'grid', gap: 12 }}>
         <h3 className="h2" style={{ marginTop: 0 }}>Mode de réception</h3>
 
@@ -213,7 +211,6 @@ export default function CheckoutClient() {
         </div>
       </div>
 
-      {/* Formulaire client */}
       <div style={{ display: 'grid', gap: 12 }}>
         <h3 className="h2" style={{ marginTop: 0 }}>Informations client</h3>
 

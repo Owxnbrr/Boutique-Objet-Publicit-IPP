@@ -153,7 +153,6 @@ export default async function ProductPage({
   const basePrice =
     (defaultSku && priceBySku[defaultSku]) || Number(product.base_price ?? 0) || 0;
 
-  // ---- JSON-LD (Product + Breadcrumbs) ----
   const canonicalUrl = `${SITE_URL}/product/${product.id}`;
 
   const imageUrls = (images ?? [])

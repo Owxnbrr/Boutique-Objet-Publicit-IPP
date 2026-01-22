@@ -167,7 +167,6 @@ export default async function OrderPage({
         {status === "paid" ? "Merci !" : "Paiement de votre commande"}
       </h1>
 
-      {/* Badge statut */}
       <div style={{ marginTop: 8 }}>
         <span
           className="inline-flex items-center gap-2 px-2 py-1 rounded-full text-sm font-medium"
@@ -188,7 +187,6 @@ export default async function OrderPage({
         Commande <strong>{order.id}</strong>
       </p>
 
-      {/* Récapitulatif */}
       <div className="panel" style={{ marginTop: 16 }}>
         <h3 className="h2" style={{ marginTop: 0 }}>
           Récapitulatif
@@ -209,7 +207,6 @@ export default async function OrderPage({
         </div>
       </div>
 
-      {/* Paiement */}
       {status !== "paid" ? (
         <div className="panel" style={{ marginTop: 16 }}>
           {clientSecret ? (

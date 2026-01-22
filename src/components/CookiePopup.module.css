@@ -21,7 +21,6 @@
   display: grid;
   gap: 10px;
 
-  /* slide-in depuis la droite -> vers la gauche */
   transform: translateX(120%);
   opacity: 0;
   transition: transform .45s ease, opacity .45s ease;

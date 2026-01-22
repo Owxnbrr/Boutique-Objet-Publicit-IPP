@@ -30,14 +30,12 @@ export default function CookieConsent() {
   const lastFocusRef = useRef<HTMLElement | null>(null);
   const firstModalBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  // init
   useEffect(() => {
     const consent = readConsent();
     setReady(true);
 
     if (!consent) {
       setCategories(ALL_FALSE);
-      // petit délai pour l’animation slide-in
       const t = window.setTimeout(() => setBannerVisible(true), 180);
       return () => window.clearTimeout(t);
     } else {
@@ -46,13 +44,11 @@ export default function CookieConsent() {
     }
   }, []);
 
-  // ESC to close modal
   useEffect(() => {
     if (!prefsOpen) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") closePrefs();
-      // mini focus-trap
       if (e.key === "Tab") {
         const modal = document.getElementById("cookieModal");
         if (!modal) return;
@@ -102,13 +98,11 @@ export default function CookieConsent() {
   const openPrefs = () => {
     lastFocusRef.current = document.activeElement as HTMLElement;
     setPrefsOpen(true);
-    // focus
     setTimeout(() => firstModalBtnRef.current?.focus(), 0);
   };
 
   const closePrefs = () => {
     setPrefsOpen(false);
-    // restore focus
     setTimeout(() => lastFocusRef.current?.focus?.(), 0);
   };
 
@@ -128,7 +122,6 @@ export default function CookieConsent() {
 
   return (
     <>
-      {/* Banner bottom-right */}
       {bannerVisible && !prefsOpen && (
         <div className="cookieBanner is-visible" role="dialog" aria-live="polite" aria-label="Consentement cookies">
           <div className="cookieBanner__top">
@@ -159,7 +152,6 @@ export default function CookieConsent() {
         </div>
       )}
 
-      {/* Reopen (optionnel mais pro) */}
       {!bannerVisible && (
         <button
           className="cookieReopen"
@@ -176,7 +168,6 @@ export default function CookieConsent() {
         </button>
       )}
 
-      {/* Modal preferences */}
       {prefsOpen && (
         <div className="cookieModalOverlay" role="presentation" onMouseDown={closePrefs}>
           <div

@@ -17,7 +17,6 @@ export default async function QuoteDetailPage({
 }) {
   const supabase = createServerComponentClient({ cookies });
 
-  // Vérif qu’on est bien connecté
   const {
     data: { session },
   } = await supabase.auth.getSession();

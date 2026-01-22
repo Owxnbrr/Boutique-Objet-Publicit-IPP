@@ -168,7 +168,6 @@ export default function ClientDashboardPage() {
         const since = new Date();
         since.setDate(since.getDate() - 30);
 
-        // --- ORDERS ---
         const { data: orders, error: oErr } = await supabase
           .from(T.orders.table)
           .select(
@@ -211,7 +210,6 @@ export default function ClientDashboardPage() {
           value,
         }));
 
-        // --- QUOTES ---
         const { data: quotes, error: qErr } = await supabase
         .from(T.quotes.table)
         .select(`
@@ -240,7 +238,6 @@ export default function ClientDashboardPage() {
 
         const quotesOpen = (quotes ?? []).length;
 
-        // --- LAST ORDERS TABLE ---
         const { data: last, error: lastErr } = await supabase
           .from(T.orders.table)
           .select(

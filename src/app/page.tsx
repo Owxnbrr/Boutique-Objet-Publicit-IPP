@@ -25,7 +25,6 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      {/* HERO */}
       <section className="hero">
         <div className="hero-inner">
           <div>
@@ -40,7 +39,6 @@ export default function Home() {
               <Link className="btn btn-ghost" href="#devis">Demander un devis</Link>
             </div>
 
-            {/* logos confiance */}
             <div className="trust">
               <div className="trust-logos">
                 <span className="badge">Paiement sécurisé</span>
@@ -62,10 +60,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BENTO PRODUITS */}
       <Bento />
 
-      {/* AVANTAGES */}
       <section className="feature-grid">
         <div className="feature">
           <div className="h2">Prix transparents</div>
@@ -85,7 +81,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA DEVIS */}
       <section id="devis" style={{ marginTop: 36 }}>
         <div className="panel" style={{ display:'grid', gap:10 }}>
           <div className="h2">Un projet ? Parlons-en.</div>
