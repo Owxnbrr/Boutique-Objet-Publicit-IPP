@@ -1741,9 +1741,9 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   outline-offset: 3px;
 }
 
-.btn-link--ghost {
+/* .btn-link--ghost {
   background: transparent;
-}
+} */
 
 .btn-link--ghost:hover {
   background: rgba(255, 255, 255, 0.06);
