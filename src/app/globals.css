@@ -1432,7 +1432,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   }
 }
 
-.btn{
+/* .btn{
   display:inline-flex; 
   align-items:center; 
   justify-content:center; 
@@ -1446,7 +1446,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   background:transparent; 
   color:var(--text);
   transition:transform .06s ease, background .15s ease, box-shadow .15s ease;
-}
+} */
 .btn:hover{ 
   background:var(--panel) 
 }
@@ -1741,9 +1741,12 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   outline-offset: 3px;
 }
 
-/* .btn-link--ghost {
+.btn-link--ghost {
   background: transparent;
-} */
+}
+.btn-devis{
+  background: var(--brand-600);
+}
 
 .btn-link--ghost:hover {
   background: rgba(255, 255, 255, 0.06);
