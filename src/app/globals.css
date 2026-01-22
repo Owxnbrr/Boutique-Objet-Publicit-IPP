@@ -209,7 +209,7 @@ body::after{
   height:38px;
   padding:8px var(--space-3); 
   border-radius:12px; 
-  border:2px solid var(--line);
+  border:1px solid var(--line);
   cursor:pointer; 
   text-decoration:none; 
   font-weight:700;
@@ -1432,21 +1432,6 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   }
 }
 
-/* .btn{
-  display:inline-flex; 
-  align-items:center; 
-  justify-content:center; 
-  gap:8px;
-  height:38px; 
-  padding:0 var(--space-3); 
-  border-radius:12px; 
-  border:1px solid var(--line);
-  cursor:pointer; 
-  font-weight:700; 
-  background:transparent; 
-  color:var(--text);
-  transition:transform .06s ease, background .15s ease, box-shadow .15s ease;
-} */
 .btn:hover{ 
   background:var(--panel) 
 }
@@ -1743,9 +1728,6 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 
 .btn-link--ghost {
   background: transparent;
-}
-.btn-devis{
-  background: var(--brand-600);
 }
 
 .btn-link--ghost:hover {
