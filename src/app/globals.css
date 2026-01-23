@@ -264,7 +264,7 @@ body::after{
   padding: 6px 18px;
   transition:transform .06s ease, box-shadow .15s ease, background .15s ease;
   box-shadow:0 0 0 0 var(--ring);
-    background:linear-gradient(180deg,var(--panel),var(--panel-3));
+  background:linear-gradient(180deg,var(--panel),var(--panel-3));
 }
 .btn-ghost:hover{
   background:var(--panel)
