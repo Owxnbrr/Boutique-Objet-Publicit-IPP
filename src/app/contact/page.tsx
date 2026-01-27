@@ -29,7 +29,25 @@ export default function ContactPage() {
         <p style={{ marginTop: 24 }}>
           Adresse : 6 rue Dupuy, Montdidier
         </p>
-      </div>
+        </div>
+        <form action="" method="post">
+          <h2 style={{ marginTop: 32 }}>Formulaire de contact</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16, maxWidth: 480 }}>
+            <label>
+              Nom :
+              <input type="text" name="name" required style={{ width: '100%', padding: 8, marginTop: 4 }} />
+            </label>
+            <label>
+              Email :
+              <input type="email" name="email" required style={{ width: '100%', padding: 8, marginTop: 4 }} />
+            </label>
+            <label>
+              Message :
+              <textarea name="message" required style={{ width: '100%', padding: 8, marginTop: 4 }} rows={4}></textarea>
+            </label>
+            <button type="submit" className="btn btn-primary">Envoyer</button>
+          </div>
+        </form>
     </main>
   );
 }
