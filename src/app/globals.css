@@ -917,7 +917,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
 .as-register{ 
   position:absolute;
   inset:0; 
-  padding:40px 25px; 
+  padding: 5px 15px; 
 }
 .is-login .as-register{ 
   opacity:0; 
