@@ -387,11 +387,6 @@ label{
   padding:0 var(--space-3); 
   font-size:16px 
 }
-@media (max-width: 767px) {
-  .btn-md { 
-    font-size: 10px; 
-  }
-}
 .input:focus{
   background-color: #00000000; 
   border-color: rgba(255, 255, 255, 0);
@@ -876,7 +871,7 @@ AUTH SWITCHER — ANIM INSCRIPTION (cercle remplit puis disparaît)
   overflow-x: hidden;
 }
 .account-toogle{
-  font-size: 9px;
+  font-size: 13px;
 }
 
 .auth-switcher{
