@@ -252,7 +252,7 @@ export default function AuthSwitcher({ mode: initial = "login" as Mode }) {
           </form>
 
           <div className="auth-actions">
-            <button type="button" className="muted" onClick={toggleMode}>
+            <button type="button" className="btn btn-outline btn-sm" onClick={toggleMode}>
               J’ai déjà un compte
             </button>
             <button type="button" className="btn btn-outline btn-sm" onClick={toggleMode}>
